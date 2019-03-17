@@ -1,10 +1,9 @@
 package club.malygin.data.cache
 
-import club.malygin.data.cache.model.CacheStatistic
 
 import scala.concurrent.Future
 
-trait UserPairCache[A, B] {
+trait UserPairCache[A, B]{
 
   /** Returns the future associated with `key` in this cache, obtaining that value from
     * `loader` if necessary. If the asynchronous computation fails, the entry
@@ -18,7 +17,7 @@ trait UserPairCache[A, B] {
     * evictionCount : Long - the number of cache evictions
     * estimatedSize : Long - estimated size of cache
     * */
-  def loadStatistic: CacheStatistic
+   def loadStatistic: CacheStatModel
 
   /** Associates `value` with `key` in this cache. If the cache previously contained a
     * value associated with `key`, the old value is replaced by `value`. If the
@@ -26,5 +25,8 @@ trait UserPairCache[A, B] {
     */
   def addToCache(key: A, value: B): Unit
 
+  /**
+    * Return Map of current cache
+    * */
   def getCurrentCache
 }

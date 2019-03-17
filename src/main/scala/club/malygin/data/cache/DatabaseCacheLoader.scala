@@ -4,5 +4,5 @@ import javax.inject.Named
 @Named
 class DatabaseCacheLoader extends CacheLoader[Long, Long]{
 
-  override def load(key: Long): Long = 2
+  override def load(key: Long): Long = ???
 }

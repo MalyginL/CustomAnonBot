@@ -1,6 +1,5 @@
 package club.malygin.data.cache
 
-import club.malygin.data.cache.model.CacheStatistic
 import com.github.benmanes.caffeine.cache.CacheLoader
 import com.github.blemale.scaffeine.{AsyncLoadingCache, Scaffeine}
 import com.typesafe.scalalogging.LazyLogging
@@ -29,7 +28,7 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long]) extends 
 
   def loadFromCache(user: Long): Future[Long] = cache.get(user)
 
-  def loadStatistic: CacheStatistic = {
+  def loadStatistic: CacheStatModel = {
 
     /** Modifications made to the  synchronous cache directly affect the asynchronous cache.
       * If a modification is made to a
@@ -40,7 +39,7 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long]) extends 
 
     val syncCache = cache.synchronous
 
-    CacheStatistic(
+    CacheStatModel(
       syncCache.stats.averageLoadPenalty,
       syncCache.stats.hitRate,
       syncCache.stats.evictionCount,
