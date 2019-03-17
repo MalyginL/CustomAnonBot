@@ -8,6 +8,7 @@ lazy val circeVersion     = "0.10.0"
 
 resolvers += Resolver.bintrayRepo("hseeberger", "maven")
 libraryDependencies ++= Seq(
+  "net.codingwell" %% "scala-guice" % "4.2.3",
   "com.typesafe.akka" %% "akka-actor" % "2.5.13",
   "com.typesafe.akka" %% "akka-stream" % "2.5.13",
   "com.typesafe.akka" %% "akka-http" % "10.1.3",
@@ -19,5 +20,5 @@ libraryDependencies ++= Seq(
   "io.circe"          %% "circe-parser"         % circeVersion,
   "io.circe"          %% "circe-testing"        % circeVersion,
   "de.heikoseeberger" %% "akka-http-circe" % "1.18.0",
-  "com.github.blemale" %% "scaffeine" % "2.5.0" % "compile"
+  "com.github.blemale" %% "scaffeine" % "2.5.0" % "compile",
 )

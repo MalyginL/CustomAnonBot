@@ -19,16 +19,19 @@ import com.typesafe.scalalogging.{LazyLogging, Logger}
 
 class Server extends FailFastCirceSupport with JsonEncoders with JsonDecoders with LazyLogging{
 
-  val token: String = ConfigFactory.load().getString("bot.token")
-  val apiBaseUrl: String = ConfigFactory.load().getString("server.apiUrl")
-  val host: String = ConfigFactory.load().getString("server.host")
-  val port: Int = ConfigFactory.load().getInt("server.port")
+  val cf = ConfigFactory.load("debug")
 
-  implicit val system: ActorSystem = ActorSystem("test")
+  val token: String = cf.getString("bot.token")
+  val apiBaseUrl: String = cf.getString("server.apiUrl")
+  val host: String = cf.getString("server.host")
+  val port: Int = cf.getInt("server.port")
+
+  logger.debug(s"Starting on $host:$port")
+
+  implicit val system: ActorSystem = ActorSystem("main")
   implicit val executor: ExecutionContext = system.dispatcher
 
   implicit val materializer: ActorMaterializer = ActorMaterializer()
-
 
 
   val cache: Cache[String, String] =
@@ -37,6 +40,7 @@ class Server extends FailFastCirceSupport with JsonEncoders with JsonDecoders wi
       .expireAfterWrite(1.hour)
       .maximumSize(500)
       .build[String, String]()
+
 
   val http = Http()
 
