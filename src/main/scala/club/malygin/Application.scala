@@ -11,8 +11,6 @@ import com.google.inject.{AbstractModule, Guice, TypeLiteral}
 import com.typesafe.scalalogging.LazyLogging
 
 object Application extends App with LazyLogging{
-
-
   private val injector = Guice.createInjector(new AbstractModule() {
     override def configure() {
       bind(new TypeLiteral[CacheLoader[Long,Long]](){}).to(classOf[DatabaseCacheLoader])
@@ -26,7 +24,6 @@ object Application extends App with LazyLogging{
   implicit val dispatcher = system.dispatcher
 
   private val contoller = injector.getInstance(classOf[WebController])
-
 
   logger.info(s"Starting server on ${Config.host}:${Config.port}")
   Http().bindAndHandle(contoller.routes, Config.host, Config.port)
