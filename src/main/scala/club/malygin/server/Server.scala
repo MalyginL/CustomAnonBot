@@ -66,7 +66,6 @@ class Server extends FailFastCirceSupport with JsonEncoders with JsonDecoders wi
       }
     }
 
-
   http.bindAndHandle(route, host, port)
 
 
