@@ -18,11 +18,19 @@ class AppStatisticImpl extends AppStatistic {
       javaVersion = rb.getSpecVersion,
       pid = pid,
       uptime = rb.getUptime,
+
       heapInit = mb.getHeapMemoryUsage.getInit,
-      heapMax = mb.getHeapMemoryUsage.getUsed,
+      heapUsed = mb.getHeapMemoryUsage.getUsed,
+      heapCommited = mb.getHeapMemoryUsage.getCommitted,
+      heapMax = mb.getHeapMemoryUsage.getMax,
+
+      nonHeapUsed = mb.getNonHeapMemoryUsage.getUsed,
       nonHeapInit = mb.getNonHeapMemoryUsage.getInit,
       nonHeapMax = mb.getNonHeapMemoryUsage.getMax,
-      threadCount = tb.getThreadCount
+      nonHeapCommited = mb.getNonHeapMemoryUsage.getCommitted,
+
+      threadCount = tb.getThreadCount,
+      daemons = tb.getDaemonThreadCount
     )
   }
 }

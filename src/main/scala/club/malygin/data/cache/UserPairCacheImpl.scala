@@ -52,6 +52,6 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long]) extends 
   }(ExecutionContext.global))
 
 
-  def getCurrentCache = cache.synchronous.asMap
+  def getCurrentCache: collection.concurrent.Map[Long, Long] = cache.synchronous.asMap
 
 }

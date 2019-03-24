@@ -6,8 +6,13 @@ case class AppStatModel(
                          pid: Long,
                          uptime: Long,
                          heapInit: Long,
-                         heapMax: Long,
+                         heapUsed: Long,
+                         heapMax:Long,
+                         heapCommited:Long,
+                         nonHeapUsed:Long,
                          nonHeapInit: Long,
                          nonHeapMax: Long,
-                         threadCount: Int
+                         nonHeapCommited:Long,
+                         threadCount: Int,
+                         daemons:Int,
                        )

@@ -3,6 +3,8 @@ package club.malygin.web
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model.{RequestEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
+import ch.megard.akka.http.cors.scaladsl.model.HttpOriginMatcher.*
+import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import club.malygin.web.model.Update
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import javax.inject.{Inject, Named}
@@ -11,8 +13,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 @Named
 class WebController @Inject()(webService: WebService) extends FailFastCirceSupport with JsonEncoders with JsonDecoders {
+  import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 
-  private val statRoutes = {
+
+
+  private val statRoutes = cors() {
     (path("statistic" / "cache") & get) {
       complete(Marshal(webService.statistic).to[RequestEntity])
     } ~

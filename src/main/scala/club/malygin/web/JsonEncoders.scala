@@ -3,8 +3,8 @@ package club.malygin.web
 import club.malygin.data.appStat.AppStatModel
 import club.malygin.data.cache.CacheStatModel
 import io.circe.Encoder
-import io.circe.generic.extras.Configuration
-import io.circe.generic.extras.semiauto.deriveEncoder
+  import io.circe.generic.extras.Configuration
+  import io.circe.generic.extras.semiauto.deriveEncoder
 
 trait JsonEncoders {
 
