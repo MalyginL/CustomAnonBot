@@ -17,7 +17,7 @@ class ActorModule extends AbstractModule with ScalaModule{
 
   }
 
-
+  @Provides
   @Named("jsonParser")
   def getMyActor(actorSystem: ActorSystem) = {
     actorSystem.actorOf(Props(new JsonActor),"jsonParser")
