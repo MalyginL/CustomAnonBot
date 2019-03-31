@@ -12,8 +12,8 @@ import scala.concurrent.Future
 
 @Named
 class WebController @Inject()(webService: WebService) extends FailFastCirceSupport with JsonEncoders with JsonDecoders {
-  import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 
+  import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 
 
   private val statRoutes = cors() {
@@ -34,7 +34,7 @@ class WebController @Inject()(webService: WebService) extends FailFastCirceSuppo
   private val telegramRoutes = {
     (path("telegram") & post) {
       entity(as[Update])(implicit json => {
-        Future{webService.process(json)}
+        webService.process(json)
         complete(StatusCodes.OK)
       })
     }
