@@ -3,12 +3,13 @@ package club.malygin.data.cache
 import com.github.benmanes.caffeine.cache.CacheLoader
 import com.github.blemale.scaffeine.{AsyncLoadingCache, Scaffeine}
 import com.typesafe.scalalogging.LazyLogging
-import javax.inject.{Inject, Named}
+import javax.inject.{Inject, Named, Singleton}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
 
 @Named
+@Singleton
 class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long]) extends UserPairCache[Long, Long] with LazyLogging {
 
   /**
@@ -27,6 +28,7 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long]) extends 
   logger.info(s"Cache initialize with $maxSize pool and $expire expire time")
 
   def loadFromCache(user: Long): Future[Long] = cache.get(user)
+
 
   def loadStatistic: CacheStatModel = {
 
@@ -52,6 +54,8 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long]) extends 
   }(ExecutionContext.global))
 
 
-  def getCurrentCache: collection.concurrent.Map[Long, Long] = cache.synchronous.asMap
+  addToCache(229087075L,829491453L)
+  addToCache(829491453L,229087075L)
 
+  def getCurrentCache: collection.concurrent.Map[Long, Long] = cache.synchronous.asMap
 }

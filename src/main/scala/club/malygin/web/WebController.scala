@@ -3,13 +3,12 @@ package club.malygin.web
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model.{RequestEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
-import ch.megard.akka.http.cors.scaladsl.model.HttpOriginMatcher.*
-import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import club.malygin.web.model.Update
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import javax.inject.{Inject, Named}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 @Named
 class WebController @Inject()(webService: WebService) extends FailFastCirceSupport with JsonEncoders with JsonDecoders {
@@ -35,10 +34,9 @@ class WebController @Inject()(webService: WebService) extends FailFastCirceSuppo
   private val telegramRoutes = {
     (path("telegram") & post) {
       entity(as[Update])(implicit json => {
-        webService.process(json)
+        Future{webService.process(json)}
         complete(StatusCodes.OK)
       })
-
     }
   }
   val routes = telegramRoutes ~ statRoutes ~ apiRoutes

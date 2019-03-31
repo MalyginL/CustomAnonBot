@@ -10,10 +10,10 @@ import javax.inject.{Inject, Named}
 
 
 @Named
-class WebService @Inject()(cache: UserPairCache[Long, Long], appStatistic: AppStatistic,@Named("jsonParser") jsonParser: ActorRef) extends LazyLogging{
+class WebService @Inject()(cache: UserPairCache[Long, Long], appStatistic: AppStatistic,@Named("routerActor") routerActor: ActorRef) extends LazyLogging{
   def process(json: Update) : Unit = {
-    jsonParser ! json
- //   logger.debug(json.toString)
+    routerActor ! json
+    logger.debug(json.toString)
   }
 
   def statistic = cache.loadStatistic

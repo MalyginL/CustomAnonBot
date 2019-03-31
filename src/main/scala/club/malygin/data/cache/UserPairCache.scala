@@ -28,5 +28,5 @@ trait UserPairCache[A, B]{
   /**
     * Return Map of current cache
     * */
-  def getCurrentCache
+  def getCurrentCache: collection.concurrent.Map[Long, Long]
 }

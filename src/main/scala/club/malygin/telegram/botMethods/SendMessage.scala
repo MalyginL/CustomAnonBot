@@ -1,13 +1,13 @@
-package club.malygin.server.models.methods
+package club.malygin.telegram.botMethods
 
-import club.malygin.server.json.Request
-import club.malygin.server.models.main_types.Message
+import club.malygin.web.model.{InlineKeyboardMarkup, ReplyKeyboardMarkup}
+
 
 case class SendMessage(
                         chat_id: Int,
                         text: String,
                         disable_web_page_preview: Option[Boolean] = None,
                         disable_notification: Option[Boolean] = None,
-
+                        reply_markup: Option[InlineKeyboardMarkup] =None,
                       )
 
