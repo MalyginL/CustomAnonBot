@@ -17,7 +17,6 @@ class ActorModule extends AbstractModule with ScalaModule{
 
   }
 
-
   @Provides
   @Named("routerActor")
   def getRouterActor(actorSystem: ActorSystem, cache:UserPairCache[Long,Long], @Named("commandActor") commandActor: ActorRef) = {
