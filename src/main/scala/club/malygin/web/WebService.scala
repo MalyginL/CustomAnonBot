@@ -8,20 +8,17 @@ import com.typesafe.scalalogging.LazyLogging
 import javax.inject.{Inject, Named}
 
 
-
 @Named
-class WebService @Inject()(cache: UserPairCache[Long, Long], appStatistic: AppStatistic,@Named("routerActor") routerActor: ActorRef) extends LazyLogging{
-  def process(json: Update) : Unit = {
+class WebService @Inject()(cache: UserPairCache[Long, Long], appStatistic: AppStatistic, @Named("routerActor") routerActor: ActorRef) extends LazyLogging {
+  def process(json: Update): Unit = {
     routerActor ! json
     logger.debug(json.toString)
   }
 
-  def statistic = cache.loadStatistic
+  def statistic: CacheStatModel = cache.loadStatistic
 
   def currentPairs = cache.getCurrentCache
 
   def getAppInfo: AppStatModel = appStatistic.getAppStatistic
-
-
 
 }
