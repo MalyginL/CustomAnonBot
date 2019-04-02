@@ -17,22 +17,21 @@ import scala.concurrent.duration._
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.{LazyLogging, Logger}
 
-class Server extends FailFastCirceSupport with JsonEncoders with JsonDecoders with LazyLogging{
+class Server extends FailFastCirceSupport with JsonEncoders with JsonDecoders with LazyLogging {
 
   val cf = ConfigFactory.load("debug")
 
-  val token: String = cf.getString("bot.token")
+  val token: String      = cf.getString("bot.token")
   val apiBaseUrl: String = cf.getString("server.apiUrl")
-  val host: String = cf.getString("server.host")
-  val port: Int = cf.getInt("server.port")
+  val host: String       = cf.getString("server.host")
+  val port: Int          = cf.getInt("server.port")
 
   logger.debug(s"Starting on $host:$port")
 
-  implicit val system: ActorSystem = ActorSystem("main")
+  implicit val system: ActorSystem        = ActorSystem("main")
   implicit val executor: ExecutionContext = system.dispatcher
 
   implicit val materializer: ActorMaterializer = ActorMaterializer()
-
 
   val cache: Cache[String, String] =
     Scaffeine()
@@ -41,19 +40,18 @@ class Server extends FailFastCirceSupport with JsonEncoders with JsonDecoders wi
       .maximumSize(500)
       .build[String, String]()
 
-
   val http = Http()
 
   val route = pathSingleSlash {
     post {
       entity(as[Update])(implicit json => {
-        cache.put(json.message.get.from.get.id.toString, json.message.get.text.get)
+        cache
+          .put(json.message.get.from.get.id.toString, json.message.get.text.get)
         logger.debug(json.toString)
 
-        Marshal(SendMessage(json.message.get.from.get.id, json.message.get.text.get)).to[RequestEntity]
-          .map(
-            k =>
-              HttpRequest(HttpMethods.POST, Uri(apiBaseUrl+"sendMessage"), entity = k))
+        Marshal(SendMessage(json.message.get.from.get.id, json.message.get.text.get))
+          .to[RequestEntity]
+          .map(k => HttpRequest(HttpMethods.POST, Uri(apiBaseUrl + "sendMessage"), entity = k))
           .flatMap(http.singleRequest(_))
         complete(StatusCodes.OK)
       })
@@ -67,6 +65,5 @@ class Server extends FailFastCirceSupport with JsonEncoders with JsonDecoders wi
     }
 
   http.bindAndHandle(route, host, port)
-
 
 }

@@ -1,7 +1,3 @@
 package club.malygin.web.model
 
-case class InlineKeyboardMarkup (
-                                  inline_keyboard:  Array[Array[InlineKeyboardButton]]
-                                )
-
-
+case class InlineKeyboardMarkup(inline_keyboard: Array[Array[InlineKeyboardButton]])

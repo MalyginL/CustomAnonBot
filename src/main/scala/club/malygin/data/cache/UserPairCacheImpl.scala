@@ -10,15 +10,17 @@ import scala.concurrent.duration._
 
 @Named
 @Singleton
-class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long]) extends UserPairCache[Long, Long] with LazyLogging {
+class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long])
+    extends UserPairCache[Long, Long]
+    with LazyLogging {
 
   /**
     * Can't use writer(cacheWriter) due these two features are incompatible
     **/
-  private val maxSize =500
-  private val expire = 3.hour
+  private val maxSize = 500
+  private val expire  = 3.hour
 
-  private final val cache: AsyncLoadingCache[Long, Long] =
+  final private val cache: AsyncLoadingCache[Long, Long] =
     Scaffeine()
       .recordStats()
       .expireAfterAccess(expire)
@@ -29,7 +31,6 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long]) extends 
 
   def loadFromCache(user: Long): Future[Long] = cache.get(user)
 
-
   def loadStatistic: CacheStatModel = {
 
     /** Modifications made to the  synchronous cache directly affect the asynchronous cache.
@@ -37,8 +38,6 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long]) extends 
       * mapping that is currently loading, the operation blocks until the computation completes.
       * Don't use synchronous to add elements!
       */
-
-
     val syncCache = cache.synchronous
 
     CacheStatModel(
@@ -49,13 +48,14 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long]) extends 
     )
   }
 
-  def addToCache(key: Long, value: Long): Unit = cache.put(key, Future {
-    value
-  }(ExecutionContext.global))
+  def addToCache(key: Long, value: Long): Unit =
+    cache.put(key, Future {
+      value
+    }(ExecutionContext.global))
 
+  addToCache(229087075L, 829491453L)
+  addToCache(829491453L, 229087075L)
 
-  addToCache(229087075L,829491453L)
-  addToCache(829491453L,229087075L)
-
-  def getCurrentCache: collection.concurrent.Map[Long, Long] = cache.synchronous.asMap
+  def getCurrentCache: collection.concurrent.Map[Long, Long] =
+    cache.synchronous.asMap
 }

@@ -1,7 +1,3 @@
 package club.malygin.server.models.methods
 
-case class GetChatAdministrators(
-                                  chat_id: Int
-                                )
-
-
+case class GetChatAdministrators(chat_id: Int)

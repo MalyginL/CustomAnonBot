@@ -1,7 +1,3 @@
 package club.malygin.server.models.methods
 
-case class DeleteChatStickerSet(
-                                 chat_id: Int
-                               )
-
-
+case class DeleteChatStickerSet(chat_id: Int)

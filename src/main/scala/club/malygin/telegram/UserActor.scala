@@ -21,12 +21,15 @@ class UserActor extends Actor with JsonEncoders with JsonDecoders with FailFastC
       logger.info(s"got message in $actorName")
 
       message match {
-        case Some(m) => m.text match {
-          case Some(text) => Marshal(SendMessage(actorName.toInt, text.toString)).to[RequestEntity]
-            .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendMessage"), entity = k))
-            .flatMap(Application.http.singleRequest(_))
-          case None => logger.debug("no text")
-        }
+        case Some(m) =>
+          m.text match {
+            case Some(text) =>
+              Marshal(SendMessage(actorName.toInt, text.toString))
+                .to[RequestEntity]
+                .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendMessage"), entity = k))
+                .flatMap(Application.http.singleRequest(_))
+            case None => logger.debug("no text")
+          }
         case None => logger.debug("no message")
       }
     }

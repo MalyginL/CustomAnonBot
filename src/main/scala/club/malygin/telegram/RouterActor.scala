@@ -8,22 +8,30 @@ import javax.inject.{Inject, Named}
 
 import scala.concurrent.ExecutionContext
 
-
-class RouterActor @Inject()(@Named("commandActor") commandActor: ActorRef, cache: UserPairCache[Long, Long]) extends Actor with LazyLogging {
+class RouterActor @Inject()(@Named("commandActor") commandActor: ActorRef, cache: UserPairCache[Long, Long])
+    extends Actor
+    with LazyLogging {
 
   override def receive: Receive = {
     case update: Update => {
       update.callback_query match {
         case Some(callback) => commandActor ! callback
-        case None => update.message match {
-          case Some(m) if m.entities.isDefined => commandActor ! update.message.get
-          /** if entites is defined, 100% we will have text with those entities */
-          case Some(m) => m.from match {
-            case Some(user) => cache.loadFromCache(user.id).map(companion => getChild(companion.toString) ! update.message)(ExecutionContext.global)
-            case None => logger.debug("no user available")
+        case None =>
+          update.message match {
+            case Some(m) if m.entities.isDefined =>
+              commandActor ! update.message.get
+
+            /** if entites is defined, 100% we will have text with those entities */
+            case Some(m) =>
+              m.from match {
+                case Some(user) =>
+                  cache
+                    .loadFromCache(user.id)
+                    .map(companion => getChild(companion.toString) ! update.message)(ExecutionContext.global)
+                case None => logger.debug("no user available")
+              }
+            case None => logger.debug("no message available")
           }
-          case None => logger.debug("no message available")
-        }
       }
     }
   }

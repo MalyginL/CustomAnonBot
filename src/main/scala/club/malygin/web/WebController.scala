@@ -9,7 +9,6 @@ import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import javax.inject.{Inject, Named}
 import StatusCodes._
 
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @Named
@@ -17,8 +16,13 @@ class WebController @Inject()(webService: WebService) extends FailFastCirceSuppo
 
   import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 
-  implicit def TelegramRejectionHandler = RejectionHandler.newBuilder()
-    .handleAll[MalformedRequestContentRejection] { _ => complete(BadRequest, "You are not Telegram!") }.result()
+  implicit def TelegramRejectionHandler =
+    RejectionHandler
+      .newBuilder()
+      .handleAll[MalformedRequestContentRejection] { _ =>
+        complete(BadRequest, "You are not Telegram!")
+      }
+      .result()
 
   private def statRoutes: Route = cors() {
     (path("statistic" / "cache") & get) {
@@ -29,20 +33,20 @@ class WebController @Inject()(webService: WebService) extends FailFastCirceSuppo
       }
   }
 
-  private def apiRoutes: Route = {
+  private def apiRoutes: Route =
     (path("api" / "cache" / "current") & get) {
       complete(webService.currentPairs)
     }
-  }
 
-  private def telegramRoutes: Route = handleRejections(TelegramRejectionHandler) {
-    (path("telegram") & post) {
-      entity(as[Update])(implicit json => {
-        webService.process(json)
-        complete(StatusCodes.OK)
-      })
+  private def telegramRoutes: Route =
+    handleRejections(TelegramRejectionHandler) {
+      (path("telegram") & post) {
+        entity(as[Update])(implicit json => {
+          webService.process(json)
+          complete(StatusCodes.OK)
+        })
+      }
     }
-  }
 
   def routes: Route = telegramRoutes ~ statRoutes ~ apiRoutes
 }

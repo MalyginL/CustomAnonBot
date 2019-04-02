@@ -26,6 +26,5 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-testkit" % "2.5.21" % Test,
   "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.21" % Test,
   "org.scalatest" %% "scalatest" % "3.0.3" % Test,
-  "org.scalamock" %% "scalamock" % "4.1.0" % Test
-
+  "org.scalamock" %% "scalamock" % "4.1.0" % Test,
 )

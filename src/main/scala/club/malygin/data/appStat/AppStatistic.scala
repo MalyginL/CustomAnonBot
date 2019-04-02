@@ -1,8 +1,6 @@
 package club.malygin.data.appStat
 
-
-
-trait AppStatistic{
+trait AppStatistic {
 
   def getAppStatistic: AppStatModel
 
