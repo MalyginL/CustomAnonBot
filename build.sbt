@@ -10,8 +10,8 @@ resolvers += Resolver.bintrayRepo("hseeberger", "maven")
 libraryDependencies ++= Seq(
   "de.heikoseeberger" %% "akka-http-circe" % "1.18.0",
   "net.codingwell" %% "scala-guice" % "4.2.3",
-  "com.typesafe.akka" %% "akka-actor" % "2.5.19",
-  "com.typesafe.akka" %% "akka-stream" % "2.5.19",
+  "com.typesafe.akka" %% "akka-actor" % "2.5.21",
+  "com.typesafe.akka" %% "akka-stream" % "2.5.21",
   "com.typesafe.akka" %% "akka-http" % "10.1.7",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
   "ch.qos.logback" % "logback-classic" % "1.1.3" % Runtime,

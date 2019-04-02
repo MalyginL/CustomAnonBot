@@ -17,7 +17,7 @@ class WebService @Inject()(cache: UserPairCache[Long, Long], appStatistic: AppSt
 
   def statistic: CacheStatModel = cache.loadStatistic
 
-  def currentPairs = cache.getCurrentCache
+  def currentPairs:collection.concurrent.Map[Long, Long] = cache.getCurrentCache
 
   def getAppInfo: AppStatModel = appStatistic.getAppStatistic
 
