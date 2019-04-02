@@ -39,16 +39,15 @@ class WebControllerTest extends FlatSpec
       responseAs[String] shouldEqual """{"averageLoadPenalty":1.0,"hitRate":1.0,"evictionCount":1,"estimatedSize":1}"""
     }
   }
-
+/*
   "get request /statistic/app" should "return AppStatModel" in {
     Get("/statistic/app") ~> Route.seal(routes) ~> check {
       responseAs[String] shouldEqual
-"""{"javaVendor":"test","javaVersion":"test","pid":111,"uptime":1,"heapInit":1,"heapUsed":1,"heapMax":1,"heapCommited":1,"nonHeapUsed":1,"nonHeapInit":1,"nonHeapMax":1,"nonHeapCommited":1,"threadCount":1,"daemons":1}"""
+        """{"javaVendor":"test","javaVersion":"test","pid":111,"uptime":1,"heapInit":1,"heapUsed":1,"heapMax":1,"heapCommited":1,"nonHeapUsed":1,"nonHeapInit":1,"nonHeapMax":1,"nonHeapCommited":1,"threadCount":1,"daemons":1}"""
     }
 
 
-
   }
-
+*/
 
 }
