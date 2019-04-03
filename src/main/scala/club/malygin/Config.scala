@@ -4,7 +4,7 @@ import com.typesafe.config.ConfigFactory
 
 object Config {
 
-  private val cf = ConfigFactory.load("debug")
+  private val cf = ConfigFactory.load("telegram")
 
   final val token: String      = cf.getString("bot.token")
   final val apiBaseUrl: String = cf.getString("server.apiUrl")
