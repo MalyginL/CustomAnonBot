@@ -43,9 +43,32 @@ Main features:
 7) Send `get` request on `api.telegram.org/bot/bot{YOUR_TOKEN}/setWebhook?url=https://{YOUR_DOMAIN}/telegram`
 8) It works!
 
-## Bot commands
+## BOT COMMANDS
 - `/start` - shows greeting message and starts poll
 - `/register` - starts poll. It can be helpful if user wants to change answer
 - `/startChat` - bot finds a pair of users and connects them
 - `/stopChat` - bot stops current chat
 
+## STATISTIC
+`/statistic/app` - Provides main statistic of application
+ <br/><br/>_params_:
+- java vendor
+- java version
+- pid
+- uptime
+- init heap
+- commited heap
+- used heap
+- max heap
+- init non-heap
+- used non-heap
+- commited non-heap
+- current threads
+- daemon threads
+
+`/statistic/cache` - Provides scaffeine cache statistic
+ <br/><br/>_params_ :
+- cache average load penalty
+- cache hit rate
+- cache eviction count
+- cache estimated size
