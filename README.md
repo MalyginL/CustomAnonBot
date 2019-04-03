@@ -5,10 +5,9 @@ Scala Anonymous Chat Bot For Telegram
 This bot allows two people to communicate with each other on any topic without revealing account
 
 Main features:
-
 - You can choose the criteria by which the interlocutors will look for each other. This could be politics, sports or other.
 - You can connect people with one point of view on the topics discussed, or with different. It depends on the type of content you want to provide.
-- Bot does not use third-party telegram libraries, it only implements the necessary functions.
+- Bot does not use third-party telegram libraries, it implements only necessary functions.
 - Bot provides statistics by `get` requests
 
 ## REQUIREMENTS
@@ -41,6 +40,12 @@ Main features:
       
 5) **Работу с подключением и настройкой БД я еще не пишу, потому что еще не начинал с ней работать**
 6) Start your app
-7) Send `get` request on api.telegram.org/bot/bot{YOUR_TOKEN}/setWebhook?url=https://{YOUR_DOMAIN}/telegram
+7) Send `get` request on `api.telegram.org/bot/bot{YOUR_TOKEN}/setWebhook?url=https://{YOUR_DOMAIN}/telegram`
 8) It works!
+
+## Bot commands
+- `/start` - shows greeting message and starts poll
+- `/register` - starts poll. It can be helpful if user wants to change answer
+- `/startChat` - bot finds a pair of users and connects them
+- `/stopChat` - bot stops current chat
 
