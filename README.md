@@ -16,7 +16,7 @@ Main features:
 - Scala 2.11.12
 - PostgresDB (optional) - you can rewrite DAO object
 - MongoDB / Cassandra (optional) - you can rewrite DAO object
-- SSL/TLS - bot works on webhook _[more info]_(https://core.telegram.org/bots/webhooks#ssl-tls-what-is-it-and-why-do-i-have-to-handle-this-for-a-webhoo)
+- SSL/TLS - bot works on webhook _[more info](https://core.telegram.org/bots/webhooks#ssl-tls-what-is-it-and-why-do-i-have-to-handle-this-for-a-webhoo)_
 - Domain name & static ip
 - SBT
 - Nginx (optional) - it's possible to inject ssl into jvm keystore
