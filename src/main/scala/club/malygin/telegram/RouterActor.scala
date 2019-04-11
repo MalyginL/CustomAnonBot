@@ -12,7 +12,7 @@ class RouterActor @Inject()(@Named("commandActor") commandActor: ActorRef, cache
     extends Actor
     with LazyLogging {
 
-  override def receive: Receive = {
+  override def receive(): Receive = {
     case update: Update => {
       update.callback_query match {
         case Some(callback) => commandActor ! callback
@@ -22,6 +22,7 @@ class RouterActor @Inject()(@Named("commandActor") commandActor: ActorRef, cache
               commandActor ! update.message.get
 
             /** if entites is defined, 100% we will have text with those entities */
+
             case Some(m) =>
               m.from match {
                 case Some(user) =>
