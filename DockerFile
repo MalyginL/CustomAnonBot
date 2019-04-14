@@ -1,5 +1,5 @@
 FROM hseeberger/scala-sbt
-RUN mkdir -p /CustomBot
-WORKDIR /CustomBot
-COPY . /CustomBot
-CMD sbt run
+           RUN mkdir -p /CustomBot
+           WORKDIR /CustomBot
+           COPY . /CustomBot
+           CMD sbt run

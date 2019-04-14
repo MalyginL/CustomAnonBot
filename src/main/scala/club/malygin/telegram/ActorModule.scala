@@ -3,6 +3,7 @@ package club.malygin.telegram
 import akka.actor.{ActorRef, ActorSystem, Props}
 import club.malygin.data.appStat.{AppStatistic, AppStatisticImpl}
 import club.malygin.data.cache.{DatabaseCacheLoader, UserPairCache, UserPairCacheImpl}
+import club.malygin.data.dataBase.pg.dao.{QuizQuestionDao, QuizQuestionDaoImpl}
 import com.github.benmanes.caffeine.cache.CacheLoader
 import com.google.inject.{AbstractModule, Provides, TypeLiteral}
 import javax.inject.{Inject, Named}
@@ -16,6 +17,7 @@ class ActorModule extends AbstractModule with ScalaModule {
     bind(new TypeLiteral[UserPairCache[Long, Long]]() {})
       .to(classOf[UserPairCacheImpl])
     bind(classOf[AppStatistic]).to(classOf[AppStatisticImpl])
+    bind(classOf[QuizQuestionDao]).to(classOf[QuizQuestionDaoImpl])
 
   }
 
@@ -23,13 +25,13 @@ class ActorModule extends AbstractModule with ScalaModule {
   @Named("routerActor")
   def getRouterActor(
       actorSystem: ActorSystem,
-      cache: UserPairCache[Long, Long],
-      @Named("commandActor") commandActor: ActorRef
-  ) =
-    actorSystem.actorOf(Props(new RouterActor(commandActor, cache)), "routerActor")
+      cache: UserPairCache[Long, Long]
+  ) =    actorSystem.actorOf(Props(new RouterActor(cache)), "routerActor")
 
+
+/*
   @Provides
   @Named("commandActor")
   def getCommandActor(actorSystem: ActorSystem, cache: UserPairCache[Long, Long]) =
-    actorSystem.actorOf(Props(new CommandActor(cache)), "commandActor")
+    actorSystem.actorOf(Props(new CommandActor(cache)), "commandActor")*/
 }

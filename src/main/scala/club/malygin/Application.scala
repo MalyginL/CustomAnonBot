@@ -18,14 +18,6 @@ object Application extends App with LazyLogging {
 
   private val contoller = injector.getInstance(classOf[WebController])
 
-
- import slick.jdbc.PostgresProfile.api._
-  import org.postgresql.Driver._
-  val sqldb = Database.forConfig("db.postgres")
-
-
-
-
   logger.info(s"Starting server on ${Config.host}:${Config.port}")
   val http = Http()
   http.bindAndHandle(contoller.routes, Config.host, Config.port)

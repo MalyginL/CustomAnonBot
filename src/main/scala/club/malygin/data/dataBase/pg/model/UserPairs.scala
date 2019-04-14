@@ -1,4 +1,4 @@
-package club.malygin.data.pg.model
+package club.malygin.data.dataBase.pg.model
 
 case class UserPairs(
     id: String,

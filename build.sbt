@@ -23,6 +23,7 @@ libraryDependencies ++= Seq(
   "ch.megard" %% "akka-http-cors" % "0.4.0",
   "com.typesafe.slick" %% "slick" % "3.3.0",
   "com.typesafe.slick" %% "slick-hikaricp" % "3.3.0",
+  "com.typesafe.slick" %% "slick-testkit" % "3.3.0" % "test",
   "com.github.blemale" %% "scaffeine" % "2.5.0" % "compile",
   "org.postgresql" % "postgresql" % "42.2.5",
   "com.typesafe.akka" %% "akka-http-testkit" % "10.1.7" % Test,
@@ -30,4 +31,14 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.21" % Test,
   "org.scalatest" %% "scalatest" % "3.0.3" % Test,
   "org.scalamock" %% "scalamock" % "4.1.0" % Test,
+  "joda-time" % "joda-time"    % "2.3",
+  "org.joda"  % "joda-convert" % "1.6"
+)
+
+
+scalacOptions ++=  Seq(
+  "-feature",
+  "-unchecked",
+  // "-deprecation:false", // uncomment if you *must* use deprecated apis
+  "-Xlint:unsound-match"
 )

@@ -53,8 +53,8 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long])
       value
     }(ExecutionContext.global))
 
-  addToCache(229087075L, 829491453L)
-  addToCache(829491453L, 229087075L)
+//  addToCache(229087075L, 829491453L)
+ // addToCache(829491453L, 229087075L)
 
   def getCurrentCache: collection.concurrent.Map[Long, Long] =
     cache.synchronous.asMap
