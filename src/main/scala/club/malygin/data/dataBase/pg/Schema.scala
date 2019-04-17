@@ -67,15 +67,33 @@ object Schema {
 
     def username: Rep[Option[String]] = column("username")
 
-    def status: Rep[Boolean] = column("status")
+    def status: Rep[Option[Long]] = column("status")
 
     def last_online: Rep[Option[DateTime]] = column("last_online")
 
-    override def * : ProvenShape[Users] = (userId, firstName, lastName, username, status, last_online) <> (Users.tupled, Users.unapply)
+    def searching_for: Rep[Option[UUID]] = column("searching_for")
+
+    override def * : ProvenShape[Users] = (userId, firstName, lastName, username, status, last_online,searching_for) <> (Users.tupled, Users.unapply)
 
   }
 
   val users = TableQuery[UsersTable]
+
+/*
+  class UserPairsTable(tag: Tag) extends Table[UserPairs](tag, "user_pairs") {
+
+    def pairId: Rep[Long] = column("pair_id", O.PrimaryKey)
+
+    def first: Rep[Long] = column("first_participant")
+
+    def second: Rep[Long] = column("second_participant")
+
+    override def * : ProvenShape[UserPairs] = (pairId, first, second) <> (UserPairs.tupled, UserPairs.unapply)
+
+  }
+
+  val pairs = TableQuery[UserPairsTable]
+*/
 
 
   val sqldb = Database.forConfig("db.postgres")

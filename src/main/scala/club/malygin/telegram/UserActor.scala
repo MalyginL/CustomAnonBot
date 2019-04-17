@@ -3,7 +3,6 @@ package club.malygin.telegram
 import java.util.UUID
 
 import akka.actor.Actor
-import akka.actor.Status.Success
 import club.malygin.data.cache.UserPairCache
 import club.malygin.data.dataBase.pg.dao.{QuizQuestionDaoImpl, QuizResultsDaoImpl, UsersDaoImpl}
 import club.malygin.data.dataBase.pg.model.{QuizQuestions, QuizResults, Users}
@@ -54,8 +53,6 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
             .recover { case _ => sendMessage("You are not in active chat", actorName.toInt) }
       }
     }
-
-
   }
 
 
@@ -84,16 +81,11 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
         }
       }
 
-
       case "/startChat" => "asd" //Работа с базой
       case "/stopChat" => "asd"
       case _ => "asd"
 
     }
-
-
-  val buttons = Array(InlineKeyboardButton("yes", Some("yes")), InlineKeyboardButton("false", Some("false")))
-  val title = "Today's question is: true or false?"
 
   val greeting =
     "Hello friend!\nAnswer the question so that I can pick up the interlocutor\nYou can change your choice with the command\n /register"

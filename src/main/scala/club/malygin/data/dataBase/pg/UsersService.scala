@@ -1,7 +1,15 @@
 package club.malygin.data.dataBase.pg
 
-class UsersService {
+import scala.concurrent.Future
+
+class UsersService() {
+ val dao = new UsersService()
+/*
+
+  def find():Future[Unit] ={
 
 
+  }
+*/
 
 }
