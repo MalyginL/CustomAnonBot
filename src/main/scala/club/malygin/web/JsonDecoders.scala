@@ -1,5 +1,6 @@
 package club.malygin.web
 
+import club.malygin.data.dataBase.pg.model.CallbackMessage
 import club.malygin.web.model.PositionType.PositionType
 import club.malygin.web.model._
 import io.circe.generic.semiauto.deriveDecoder
@@ -33,6 +34,7 @@ trait JsonDecoders {
   implicit val VideoReader: Decoder[Video]           = deriveDecoder[Video]
   implicit val VideoNoteReader: Decoder[VideoNote]   = deriveDecoder[VideoNote]
   implicit val VoiceReader: Decoder[Voice]           = deriveDecoder[Voice]
+  implicit val cbMessageReader: Decoder[CallbackMessage]           = deriveDecoder[CallbackMessage]
 
 }
 object JsonDecoders extends JsonDecoders

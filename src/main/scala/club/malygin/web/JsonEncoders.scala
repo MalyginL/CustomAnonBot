@@ -2,6 +2,7 @@ package club.malygin.web
 
 import club.malygin.data.appStat.AppStatModel
 import club.malygin.data.cache.CacheStatModel
+import club.malygin.data.dataBase.pg.model.CallbackMessage
 import club.malygin.telegram.botMethods.{AnswerCallbackQuery, EditMessageReplyMarkup, SendMessage}
 import club.malygin.web.model.{InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup}
 import io.circe.Encoder
@@ -29,5 +30,8 @@ trait JsonEncoders {
     deriveEncoder[AnswerCallbackQuery].mapJsonObject(_.filter(!_._2.isNull))
   implicit val EditMessageReplyMarkupEncoder: Encoder[EditMessageReplyMarkup] =
     deriveEncoder[EditMessageReplyMarkup].mapJsonObject(_.filter(!_._2.isNull))
+
+  implicit val cbMessageEncoder: Encoder[CallbackMessage] = deriveEncoder[CallbackMessage].mapJsonObject(_.filter(!_._2.isNull))
 }
+
 object JsonEncoders extends JsonEncoders

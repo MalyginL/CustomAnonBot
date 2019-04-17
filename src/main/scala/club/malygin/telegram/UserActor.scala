@@ -2,16 +2,22 @@ package club.malygin.telegram
 
 import java.util.UUID
 
+import io.circe._
+import io.circe.generic.auto._
+import io.circe.parser._
+import io.circe.syntax._
 import akka.actor.Actor
-import club.malygin.data.cache.UserPairCache
+import club.malygin.data.cache.{UserPairCache}
 import club.malygin.data.dataBase.pg.dao.{QuizQuestionDaoImpl, QuizResultsDaoImpl, UsersDaoImpl}
-import club.malygin.data.dataBase.pg.model.{QuizQuestions, QuizResults, Users}
+import club.malygin.data.dataBase.pg.model.{CallbackMessage, QuizQuestions, QuizResults, Users}
 import club.malygin.web.model._
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands with LazyLogging {
+
 
   val q = new QuizQuestionDaoImpl()
   val r = new QuizResultsDaoImpl()
@@ -22,23 +28,73 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
   override def receive: Receive = {
     case callback: CallbackQuery => {
       callback.message match {
-        case Some(message) =>
-          val callbackMessage = callback.data.get.split(",")
-          r.saveOrUpdate(
-            QuizResults(
-              UUID.randomUUID,
-              callback.from.id,
-              UUID.fromString(callbackMessage(1)),
-              callbackMessage(0).toBoolean
-            ))
+        case Some(message) => {
+          callback.data match {
+            case Some(data) => {
+              val p = decode[CallbackMessage](data)
+              logger.info(p.toString)
+              p match {
+                case Right(entity) => {
+                  entity.ans match {
+                    case Some(answer) => {
 
-          answerCallbackQueryAndRemove(
-            callback.id,
-            message.chat.id.toString,
-            message.message_id.intValue,
-            callback.from.id
-          )
+                      /** Registration type of message */
+                      r.saveOrUpdate(
+                        QuizResults(
+                          UUID.randomUUID,
+                          callback.from.id,
+                          UUID.fromString(entity.id),
+                          answer
+                        ))
 
+                      answerCallbackQueryAndRemove(
+                        callback.id,
+                        message.chat.id.toString,
+                        message.message_id.intValue,
+                        callback.from.id
+                      )
+                    }
+                    case None => {
+                      answerCallbackQueryAndRemove(
+                        callback.id,
+                        message.chat.id.toString,
+                        message.message_id.intValue,
+                        callback.from.id
+                      )
+                      val k = u.find(callback.from.id, UUID.fromString(entity.id))
+
+                      k.onComplete {
+                        case Success(res) => {
+
+                          u.setPair(callback.from.id, res, UUID.fromString(entity.id)).andThen { case Success(_) =>
+                            cache.addToCache(callback.from.id, res)
+                            cache.addToCache(res, callback.from.id)
+                          }.andThen { case Success(_) =>
+                            sendMessage(s"Chat connected\n Have fun!", callback.from.id)
+                            sendMessage(s"Chat connected\n Have fun!", res.toInt)
+                          }
+                        }
+                        case Failure(_) =>
+                          u.updateStatusToActive(callback.from.id, UUID.fromString(entity.id))
+                            .andThen {
+                              case Success(_) => sendMessage("Added to queue, wait please", callback.from.id)
+                            }
+
+                      }
+                    }
+
+
+                    /** Starting chat type of message */
+                  }
+
+
+                }
+                case Left(entity)
+                => logger.warn(s"decoding fail $entity")
+              }
+            }
+          }
+        }
       }
     }
     case message: Message => {
@@ -71,17 +127,20 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
         q.getActive.onComplete { e =>
           e.getOrElse(Seq.empty[QuizQuestions]).foreach(
             question => {
-              val qId = question.quizIdd.toString
-
               sendKeyboard(message.from.get.id.toString, question.text,
                 Array(
-                  InlineKeyboardButton(question.firstOption, Some(s"true,$qId")),
-                  InlineKeyboardButton(question.secondOption, Some(s"false,$qId"))))
+                  InlineKeyboardButton(question.firstOption, Some(CallbackMessage(question.quizIdd.toString, Some(true)).asJson.toString.replaceAll("\\s", ""))),
+                  InlineKeyboardButton(question.secondOption, Some(CallbackMessage(question.quizIdd.toString, Some(false)).asJson.toString.replaceAll("\\s", "")))))
             })
         }
       }
 
-      case "/startChat" => "asd" //Работа с базой
+      case "/startChat" => {
+        val t = q.getActive.map(_.map(q => InlineKeyboardButton(q.text, Some(CallbackMessage(q.quizIdd.toString).asJson.toString.replaceAll("\\s", "")))))
+          .map(k => sendKeyboard(message.from.get.id.toString, "choose topic", k.toArray[InlineKeyboardButton])
+          )
+      }
+
       case "/stopChat" => "asd"
       case _ => "asd"
 

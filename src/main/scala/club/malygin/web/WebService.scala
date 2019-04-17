@@ -16,7 +16,7 @@ class WebService @Inject()(
 
   def process(json: Update): Unit = {
     routerActor ! json
-    logger.debug(json.toString)
+    logger.info(json.toString)
   }
 
   def statistic: CacheStatModel = cache.loadStatistic
