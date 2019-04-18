@@ -7,13 +7,14 @@ import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.syntax._
 import akka.actor.Actor
-import club.malygin.data.cache.{UserPairCache}
+import club.malygin.data.cache.UserPairCache
 import club.malygin.data.dataBase.pg.dao.{QuizQuestionDaoImpl, QuizResultsDaoImpl, UsersDaoImpl}
 import club.malygin.data.dataBase.pg.model.{CallbackMessage, QuizQuestions, QuizResults, Users}
 import club.malygin.web.model._
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands with LazyLogging {
@@ -75,6 +76,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
                           }
                         }
                         case Failure(_) =>
+
                           u.updateStatusToActive(callback.from.id, UUID.fromString(entity.id))
                             .andThen {
                               case Success(_) => sendMessage("Added to queue, wait please", callback.from.id)
@@ -105,12 +107,13 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
         }
         case Some(text) =>
           cache.loadFromCache(actorName.toLong)
-            .map(e => sendMessage(text, e.intValue))
+            .map(e =>
+              sendMessage(text, e.intValue))
             .recover { case _ => sendMessage("You are not in active chat", actorName.toInt) }
+
       }
     }
   }
-
 
   def solve(command: String, message: Message) =
     command match {
@@ -136,18 +139,30 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
       }
 
       case "/startChat" => {
-        val t = q.getActive.map(_.map(q => InlineKeyboardButton(q.text, Some(CallbackMessage(q.quizIdd.toString).asJson.toString.replaceAll("\\s", "")))))
-          .map(k => sendKeyboard(message.from.get.id.toString, "choose topic", k.toArray[InlineKeyboardButton])
-          )
+        cache.loadFromCache(actorName.toLong).andThen { case Failure(_) =>
+          q.getActive.map(_.map(q => InlineKeyboardButton(q.text, Some(CallbackMessage(q.quizIdd.toString).asJson.toString.replaceAll("\\s", "")))))
+            .map(k => sendKeyboard(message.from.get.id.toString, "choose topic", k.toArray[InlineKeyboardButton])
+            )
+
+        case Success(_)=> sendMessage("you are in chat, use /stopChat", actorName.toInt)
+        }
       }
 
-      case "/stopChat" => "asd"
-      case _ => "asd"
+      case "/stopChat" => {
+        cache.loadFromCache(message.from.get.id).map(user =>
+            u.clearPair(message.from.get.id, user).andThen { case Success(_) => {
+              cache.deletePair(user, message.from.get.id)
+              sendMessage("chat disconnected", user.toInt)
+              sendMessage("chat disconnected", message.from.get.id.intValue)
+            }
+            })
+
+      }
+      case _ => sendMessage("unknown command", message.from.get.id)
 
     }
 
   val greeting =
     "Hello friend!\nAnswer the question so that I can pick up the interlocutor\nYou can change your choice with the command\n /register"
-
 
 }

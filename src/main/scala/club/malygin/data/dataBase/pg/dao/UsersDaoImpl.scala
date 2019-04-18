@@ -34,7 +34,6 @@ class UsersDaoImpl extends UsersDao {
         !(r.result in results.filter(_.quizId === quizId).filter(_.userId === user).take(1).map(_.result))
     } yield
       u.userId
-
     sqldb.run(q.take(1).result.head)
   }
 
@@ -55,12 +54,35 @@ class UsersDaoImpl extends UsersDao {
     ).map(_ => ())
   }
 
-  def updateStatusToActive(userId: Long, quiz: UUID): Future[Unit] = {
 
+  def clearPair(firstId: Long, secondId: Long): Future[Unit] = {
+
+    val first = users.filter(_.userId === firstId)
+      .map(_.status).update(Some(-1L))
+
+    val second = users.filter(_.userId === secondId)
+      .map(_.status).update(Some(-1L))
+
+    sqldb.run(
+      DBIO.seq(
+        first,
+        second
+      ).transactionally
+    ).map(_ => ())
+
+  }
+
+  def updateStatusToActive(userId: Long, quiz: UUID): Future[Unit] = {
     val q = users.filter(_.userId === userId)
       .map(c => (c.status, c.searching_for))
       .update((Some(0), Some(quiz)))
     sqldb.run(q).map(_ => ())
   }
+
+  def getCompanion(userId: Long): Future[Option[Long]] = {
+    val q = users.filter(_.userId === userId).map(_.status)
+    sqldb.run(q.take(1).result.head)
+  }
+
 
 }

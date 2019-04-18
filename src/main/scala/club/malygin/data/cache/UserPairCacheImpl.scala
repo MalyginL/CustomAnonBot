@@ -58,4 +58,11 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long])
 
   def getCurrentCache: collection.concurrent.Map[Long, Long] =
     cache.synchronous.asMap
+
+
+  def deletePair(first:Long,second:Long) = {
+    cache.synchronous().invalidate(first)
+    cache.synchronous().invalidate(second)
+  }
+
 }
