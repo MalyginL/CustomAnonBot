@@ -1,6 +1,6 @@
 package club.malygin.telegram
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{Actor, ActorRef, Props, Terminated}
 import club.malygin.data.cache.UserPairCache
 import club.malygin.web.model.Update
 import com.typesafe.scalalogging.LazyLogging
@@ -9,13 +9,16 @@ import javax.inject.{Inject, Named}
 import scala.concurrent.ExecutionContext
 
 //class RouterActor @Inject()(@Named("commandActor") commandActor: ActorRef, cache: UserPairCache[Long, Long])
-class RouterActor @Inject()( cache: UserPairCache[Long, Long])
-    extends Actor
+
+case class ActorState(value: String, actorName: String)
+
+class RouterActor @Inject()(cache: UserPairCache[Long, Long])
+  extends Actor
     with LazyLogging {
 
   override def receive(): Receive = {
     case update: Update => {
-      update.callback_query match{
+      update.callback_query match {
         case Some(callback) => getChild(callback.from.id.toString) ! callback
         case None =>
           update.message match {
@@ -26,44 +29,46 @@ class RouterActor @Inject()( cache: UserPairCache[Long, Long])
             case None => logger.warn("no message available")
           }
       }
-
-
-      /*
-
-      update.callback_query match {
-        case Some(callback) => commandActor ! callback
-        case None =>
-          update.message match {
-            case Some(m) if m.entities.isDefined =>
-              commandActor ! update.message.get
-
-            /** if entites is defined, 100% we will have text with those entities */
-
-            case Some(m) =>
-              m.from match {
-                case Some(user) =>
-                  cache
-                    .loadFromCache(user.id)
-                    .map(companion => getChild(companion.toString) ! update.message)(ExecutionContext.global)
-                case None => logger.debug("no user available")
-              }
-            case None => logger.debug("no message available")
-          }
-      }
-
-      */
-
-
     }
+    case state: ActorState =>
+      logger.warn(state.actorName + "|||" + state.value)
+      state.value match {
+        case "?" =>
+          getChild(state.actorName) ! idleChildren.getOrElse(state.actorName, ActorState("init", "parent"))
+        case "chatting" =>
+          logger.warn(s"setting chatting to ${state.actorName}")
+          getChild(state.actorName) ! ActorState("chatting", "parent")
+          idleChildren += (state.actorName -> state)
+        case "awaitingRegister" =>
+          getChild(state.actorName) ! ActorState("awaitingRegister", "parent")
+          idleChildren += (state.actorName -> state)
+
+        case _ =>
+
+          idleChildren += (state.actorName -> state)
+      }
+    case actor: Terminated =>
   }
 
-  private var children = Map.empty[String, ActorRef]
+
+  private var idleChildren = Map.empty[String, ActorState]
+
 
   private def getChild(id: String): ActorRef =
     context.child(id).getOrElse {
-      logger.info(s"creating new actor with id $id")
-      val child = context.actorOf(Props(new UserActor(cache)), id)
-      children += (id -> child)
-      child
+      idleChildren.get(id) match {
+        case Some(state: ActorState) =>
+          logger.info(s"loading actor id $id with state $state")
+          val child = context.actorOf(Props(new UserActor(cache)), id)
+          child ! state
+          context.watch(child)
+          child
+        case None =>
+          logger.info(s"creating new actor with id $id")
+          val child = context.actorOf(Props(new UserActor(cache)), id)
+          child ! ActorState("init", "parent")
+          context.watch(child)
+          child
+      }
     }
 }
