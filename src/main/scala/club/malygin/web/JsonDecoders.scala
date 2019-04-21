@@ -1,10 +1,14 @@
 package club.malygin.web
 
+import club.malygin.data.dataBase.cassandra.ChatLogsModel
 import club.malygin.data.dataBase.pg.model.CallbackMessage
 import club.malygin.web.model.PositionType.PositionType
 import club.malygin.web.model._
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.Decoder
+import org.joda.time.DateTime
+
+import scala.util.control.NonFatal
 
 trait JsonDecoders {
   implicit val AnimationReader: Decoder[Animation] = deriveDecoder[Animation]
@@ -35,6 +39,18 @@ trait JsonDecoders {
   implicit val VideoNoteReader: Decoder[VideoNote]   = deriveDecoder[VideoNote]
   implicit val VoiceReader: Decoder[Voice]           = deriveDecoder[Voice]
   implicit val cbMessageReader: Decoder[CallbackMessage]           = deriveDecoder[CallbackMessage]
+  implicit val messageLogReader: Decoder[ChatLogsModel] =    deriveDecoder[ChatLogsModel]
+
+  import org.joda.time.format.DateTimeFormat
+  val dateFormatter = DateTimeFormat.forPattern("yyyyMMdd")
+  implicit val decodeDateTime: Decoder[DateTime] = Decoder.decodeString.emap { s =>
+    try {
+
+      Right(DateTime.parse(s, dateFormatter))
+    } catch {
+      case NonFatal(e) => Left(e.getMessage)
+    }
+  }
 
 }
 object JsonDecoders extends JsonDecoders

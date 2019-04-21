@@ -1,13 +1,17 @@
 package club.malygin.web
 
+import java.util.UUID
+
 import club.malygin.data.appStat.AppStatModel
 import club.malygin.data.cache.CacheStatModel
+import club.malygin.data.dataBase.cassandra.ChatLogsModel
 import club.malygin.data.dataBase.pg.model.CallbackMessage
 import club.malygin.telegram.botMethods.{AnswerCallbackQuery, EditMessageReplyMarkup, SendMessage}
 import club.malygin.web.model.{InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup}
-import io.circe.Encoder
+import io.circe.{Encoder, Json, JsonNumber}
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveEncoder
+import org.joda.time.DateTime
 
 trait JsonEncoders {
 
@@ -30,6 +34,19 @@ trait JsonEncoders {
     deriveEncoder[AnswerCallbackQuery].mapJsonObject(_.filter(!_._2.isNull))
   implicit val EditMessageReplyMarkupEncoder: Encoder[EditMessageReplyMarkup] =
     deriveEncoder[EditMessageReplyMarkup].mapJsonObject(_.filter(!_._2.isNull))
+
+  implicit val ChatLogEncoder: Encoder[ChatLogsModel] =
+    deriveEncoder[ChatLogsModel]
+
+  implicit val TimestampFormat : Encoder[DateTime] = new Encoder[DateTime] {
+    override def apply(a: DateTime): Json = Encoder.encodeString.apply(a.toDateTime.toDateTime.toString)
+  }
+  implicit val bigIntEncoder: Encoder[BigInt] = Encoder.encodeJsonNumber
+    .contramap(x => JsonNumber.fromDecimalStringUnsafe(x.toString))
+
+  implicit final val encodeUUID: Encoder[UUID] = new Encoder[UUID] {
+    final def apply(a: UUID): Json = Json.fromString(a.toString)
+  }
 
   implicit val cbMessageEncoder: Encoder[CallbackMessage] = deriveEncoder[CallbackMessage].mapJsonObject(_.filter(!_._2.isNull))
 }

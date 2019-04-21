@@ -7,9 +7,9 @@ import akka.http.scaladsl.server.{MalformedRequestContentRejection, RejectionHan
 import club.malygin.web.model.Update
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import javax.inject.{Inject, Named}
-import StatusCodes._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 @Named
 class WebController @Inject()(webService: WebService) extends FailFastCirceSupport with JsonEncoders with JsonDecoders {
@@ -20,8 +20,8 @@ class WebController @Inject()(webService: WebService) extends FailFastCirceSuppo
     RejectionHandler
       .newBuilder()
       .handleAll[MalformedRequestContentRejection] { _ =>
-        complete(BadRequest, "You are not Telegram!")
-      }
+      complete(StatusCodes.BadRequest, "You are not Telegram!")
+    }
       .result()
 
   private def statRoutes: Route = cors() {
@@ -36,7 +36,15 @@ class WebController @Inject()(webService: WebService) extends FailFastCirceSuppo
   private def apiRoutes: Route =
     (path("api" / "cache" / "current") & get) {
       complete(webService.currentPairs)
-    }
+    } ~
+      (path("api" / "logs" / LongNumber) & get) {
+        number => complete(Marshal(webService.loadUserMessageHistory(number)).to[RequestEntity])
+      } ~
+      (path("api" / "logs" / "clear") & get) {
+        webService.truncateCassandra
+        complete(StatusCodes.OK)
+      }
+
 
   private def telegramRoutes: Route =
     handleRejections(TelegramRejectionHandler) {

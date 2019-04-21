@@ -5,9 +5,17 @@ version := "0.1"
 scalaVersion := "2.12.8"
 
 lazy val circeVersion = "0.10.0"
+lazy val phantom = "2.39.0"
 
-resolvers += Resolver.bintrayRepo("hseeberger", "maven")
+resolvers ++= Seq(
+  Resolver.bintrayRepo("hseeberger", "maven"),
+  Resolver.sonatypeRepo("releases"),
+  Resolver.typesafeRepo("releases"),
+  Resolver.bintrayRepo("websudos", "oss-releases")
+)
 libraryDependencies ++= Seq(
+  "com.outworkers"  %%  "phantom-dsl"       % "2.39.0",
+  "com.outworkers"  %%  "phantom-streams"   % "2.39.0",
   "de.heikoseeberger" %% "akka-http-circe" % "1.18.0",
   "net.codingwell" %% "scala-guice" % "4.2.3",
   "com.typesafe.akka" %% "akka-actor" % "2.5.21",

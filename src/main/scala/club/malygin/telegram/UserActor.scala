@@ -6,10 +6,12 @@ import io.circe.parser._
 import io.circe.syntax._
 import akka.actor.{Actor, ReceiveTimeout}
 import club.malygin.data.cache.UserPairCache
+import club.malygin.data.dataBase.cassandra.{CassandraDatabase, ChatLogsModel}
 import club.malygin.data.dataBase.pg.dao.{QuizQuestionDaoImpl, QuizResultsDaoImpl, UsersDaoImpl}
 import club.malygin.data.dataBase.pg.model.{CallbackMessage, QuizQuestions, QuizResults, Users}
 import club.malygin.web.model._
 import com.typesafe.scalalogging.LazyLogging
+import org.joda.time.DateTime
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
@@ -240,8 +242,9 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
 
         case Some(text) =>
           cache.loadFromCache(actorName.toLong)
-            .map(e =>
-              sendMessage(text, e.intValue))
+            .map(e =>{
+              CassandraDatabase.save(ChatLogsModel(UUID.randomUUID(),actorName.toLong,e,text,DateTime.now()))
+              sendMessage(text, e.intValue)})
             .recover { case _ => sendMessage("You are not in active chat", actorName.toInt) }
         case _ => //todo
       }
