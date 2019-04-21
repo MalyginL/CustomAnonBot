@@ -12,7 +12,6 @@ import club.malygin.web.model._
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 
@@ -61,6 +60,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
     case message: Message => {
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/register" =>
+          sendMessage("after quiz use /search command to start chat",actorName.toInt)
           q.getActive.onComplete { e =>
             e.getOrElse(Seq.empty[QuizQuestions]).foreach(
               question => {
@@ -117,6 +117,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
           context.parent ! ActorState("awaitingTopic", actorName)
           become(awaitingTopic)
         case Some(text) if message.entities.isDefined && text == "/register" =>
+          sendMessage("after quiz use /search command to start chat",actorName.toInt)
           q.getActive.onComplete { e =>
             e.getOrElse(Seq.empty[QuizQuestions]).foreach(
               question => {
@@ -186,6 +187,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
     case message: Message =>
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/register" =>
+          sendMessage("after quiz use /search command to start chat",actorName.toInt)
           q.getActive.onComplete { e =>
             e.getOrElse(Seq.empty[QuizQuestions]).foreach(
               question => {
@@ -231,7 +233,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
               sendMessage("chat disconnected", user.toInt)
               context.parent ! ActorState("awaitingRegister", actorName)
               context.parent ! ActorState("awaitingRegister", user.toString)
-              sendMessage("chat disconnected", message.from.get.id.intValue)
+              sendMessage("chat disconnected\n use /register to change answers\n or start new chat with /search", message.from.get.id.intValue)
             }
             }).recoverWith { case _ => sendMessage("you are not in chat", message.from.get.id) }
 
