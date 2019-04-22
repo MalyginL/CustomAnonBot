@@ -4,34 +4,28 @@ import akka.actor.{Actor, ActorRef, Props, Terminated}
 import club.malygin.data.cache.UserPairCache
 import club.malygin.web.model.Update
 import com.typesafe.scalalogging.LazyLogging
-import javax.inject.{Inject, Named}
-
-import scala.concurrent.ExecutionContext
-
-//class RouterActor @Inject()(@Named("commandActor") commandActor: ActorRef, cache: UserPairCache[Long, Long])
+import javax.inject.Inject
 
 case class ActorState(value: String, actorName: String)
 
-class RouterActor @Inject()(cache: UserPairCache[Long, Long])
-  extends Actor
-    with LazyLogging {
+class RouterActor @Inject()(cache: UserPairCache[Long, Long]) extends Actor with LazyLogging {
 
   override def receive(): Receive = {
-    case update: Update => {
+    case update: Update =>
       update.callback_query match {
         case Some(callback) => getChild(callback.from.id.toString) ! callback
         case None =>
           update.message match {
-            case Some(message) => message.from match {
-              case Some(user) => getChild(user.id.toString) ! message
-              case None => logger.warn("no user available")
-            }
+            case Some(message) =>
+              message.from match {
+                case Some(user) => getChild(user.id.toString) ! message
+                case None       => logger.warn("no user available")
+              }
             case None => logger.warn("no message available")
           }
       }
-    }
+
     case state: ActorState =>
-      logger.warn(state.actorName + "|||" + state.value)
       state.value match {
         case "?" =>
           getChild(state.actorName) ! idleChildren.getOrElse(state.actorName, ActorState("init", "parent"))
@@ -42,17 +36,12 @@ class RouterActor @Inject()(cache: UserPairCache[Long, Long])
         case "awaitingRegister" =>
           getChild(state.actorName) ! ActorState("awaitingRegister", "parent")
           idleChildren += (state.actorName -> state)
-
         case _ =>
-
           idleChildren += (state.actorName -> state)
       }
-    case actor: Terminated =>
   }
 
-
   private var idleChildren = Map.empty[String, ActorState]
-
 
   private def getChild(id: String): ActorRef =
     context.child(id).getOrElse {
@@ -61,13 +50,11 @@ class RouterActor @Inject()(cache: UserPairCache[Long, Long])
           logger.info(s"loading actor id $id with state $state")
           val child = context.actorOf(Props(new UserActor(cache)), id)
           child ! state
-          context.watch(child)
           child
         case None =>
           logger.info(s"creating new actor with id $id")
           val child = context.actorOf(Props(new UserActor(cache)), id)
           child ! ActorState("init", "parent")
-          context.watch(child)
           child
       }
     }

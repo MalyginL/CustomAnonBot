@@ -38,17 +38,15 @@ trait JsonEncoders {
   implicit val ChatLogEncoder: Encoder[ChatLogsModel] =
     deriveEncoder[ChatLogsModel]
 
-  implicit val TimestampFormat : Encoder[DateTime] = new Encoder[DateTime] {
-    override def apply(a: DateTime): Json = Encoder.encodeString.apply(a.toDateTime.toDateTime.toString)
-  }
+  implicit val TimestampFormat: Encoder[DateTime] = (a: DateTime) =>
+    Encoder.encodeString.apply(a.toDateTime.toDateTime.toString)
   implicit val bigIntEncoder: Encoder[BigInt] = Encoder.encodeJsonNumber
     .contramap(x => JsonNumber.fromDecimalStringUnsafe(x.toString))
 
-  implicit final val encodeUUID: Encoder[UUID] = new Encoder[UUID] {
-    final def apply(a: UUID): Json = Json.fromString(a.toString)
-  }
+  implicit final val encodeUUID: Encoder[UUID] = (a: UUID) => Json.fromString(a.toString)
 
-  implicit val cbMessageEncoder: Encoder[CallbackMessage] = deriveEncoder[CallbackMessage].mapJsonObject(_.filter(!_._2.isNull))
+  implicit val cbMessageEncoder: Encoder[CallbackMessage] =
+    deriveEncoder[CallbackMessage].mapJsonObject(_.filter(!_._2.isNull))
 }
 
 object JsonEncoders extends JsonEncoders

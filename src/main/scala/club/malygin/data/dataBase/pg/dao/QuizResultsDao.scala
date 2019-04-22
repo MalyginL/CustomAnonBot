@@ -8,13 +8,12 @@ import scala.concurrent.Future
 
 trait QuizResultsDao {
 
-  def find(quizId:UUID,userId:Long):Future[QuizResults]
+  def find(quizId: UUID, userId: Long): Future[QuizResults]
 
   def saveOrUpdate(quizResults: QuizResults): Future[Unit]
 
-  def save(quizResults: QuizResults):Future[Unit]
+  def save(quizResults: QuizResults): Future[Unit]
 
-  def update(quizResults: QuizResults, answer: Boolean):Future[Unit]
-
+  def update(quizResults: QuizResults, answer: Boolean): Future[Unit]
 
 }

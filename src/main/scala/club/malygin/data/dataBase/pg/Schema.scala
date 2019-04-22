@@ -1,6 +1,5 @@
 package club.malygin.data.dataBase.pg
 
-
 import java.sql.Timestamp
 import java.util.UUID
 
@@ -24,7 +23,6 @@ object Schema {
   import slick.jdbc.PostgresProfile.api._
   import org.postgresql.Driver._
 
-
   class QuestionsTable(tag: Tag) extends Table[QuizQuestions](tag, "quiz_q") {
 
     def id: Rep[UUID] = column("quiz_id", O.PrimaryKey)
@@ -37,7 +35,8 @@ object Schema {
 
     def status: Rep[Boolean] = column("status")
 
-    override def * : ProvenShape[QuizQuestions] = (id, text, firstOption, secondOption, status) <> (QuizQuestions.tupled, QuizQuestions.unapply)
+    override def * : ProvenShape[QuizQuestions] =
+      (id, text, firstOption, secondOption, status) <> (QuizQuestions.tupled, QuizQuestions.unapply)
   }
 
   val questions = TableQuery[QuestionsTable]
@@ -52,7 +51,8 @@ object Schema {
 
     def result: Rep[Boolean] = column("result")
 
-    override def * : ProvenShape[QuizResults] = (id, userId, quizId, result) <> (QuizResults.tupled, QuizResults.unapply)
+    override def * : ProvenShape[QuizResults] =
+      (id, userId, quizId, result) <> (QuizResults.tupled, QuizResults.unapply)
   }
 
   val results = TableQuery[ResultsTable]
@@ -73,30 +73,14 @@ object Schema {
 
     def searching_for: Rep[Option[UUID]] = column("searching_for")
 
-    override def * : ProvenShape[Users] = (userId, firstName, lastName, username, status, last_online,searching_for) <> (Users.tupled, Users.unapply)
+    override def * : ProvenShape[Users] =
+      (userId, firstName, lastName, username, status, last_online, searching_for) <> (Users.tupled, Users.unapply)
 
   }
 
   val users = TableQuery[UsersTable]
 
-/*
-  class UserPairsTable(tag: Tag) extends Table[UserPairs](tag, "user_pairs") {
-
-    def pairId: Rep[Long] = column("pair_id", O.PrimaryKey)
-
-    def first: Rep[Long] = column("first_participant")
-
-    def second: Rep[Long] = column("second_participant")
-
-    override def * : ProvenShape[UserPairs] = (pairId, first, second) <> (UserPairs.tupled, UserPairs.unapply)
-
-  }
-
-  val pairs = TableQuery[UserPairsTable]
-*/
-
-
-  val sqldb = Database.forConfig("db.postgres")
+  val sqldb                = Database.forConfig("db.postgres")
   val profile: JdbcProfile = slick.jdbc.PostgresProfile
 
 }

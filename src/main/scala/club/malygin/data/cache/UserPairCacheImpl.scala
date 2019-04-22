@@ -1,6 +1,5 @@
 package club.malygin.data.cache
 
-import com.github.benmanes.caffeine.cache.CacheLoader
 import com.github.blemale.scaffeine.{AsyncLoadingCache, Scaffeine}
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject.{Inject, Named, Singleton}
@@ -10,9 +9,7 @@ import scala.concurrent.duration._
 
 @Named
 @Singleton
-class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long])
-    extends UserPairCache[Long, Long]
-    with LazyLogging {
+class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader) extends UserPairCache[Long, Long] with LazyLogging {
 
   /**
     * Can't use writer(cacheWriter) due these two features are incompatible
@@ -25,7 +22,7 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long])
       .recordStats()
       .expireAfterAccess(expire)
       .maximumSize(maxSize)
-      .buildAsync(e => cacheLoader.load(e))
+      .buildAsyncFuture(e => cacheLoader.load(e))
 
   logger.info(s"Cache initialize with $maxSize pool and $expire expire time")
 
@@ -53,14 +50,10 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader[Long, Long])
       value
     }(ExecutionContext.global))
 
-//  addToCache(229087075L, 829491453L)
- // addToCache(829491453L, 229087075L)
-
   def getCurrentCache: collection.concurrent.Map[Long, Long] =
     cache.synchronous.asMap
 
-
-  def deletePair(first:Long,second:Long) = {
+  def deletePair(first: Long, second: Long): Unit = {
     cache.synchronous().invalidate(first)
     cache.synchronous().invalidate(second)
   }
