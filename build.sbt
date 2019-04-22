@@ -14,8 +14,8 @@ resolvers ++= Seq(
   Resolver.bintrayRepo("websudos", "oss-releases")
 )
 libraryDependencies ++= Seq(
-  "com.outworkers"  %%  "phantom-dsl"       % "2.39.0",
-  "com.outworkers"  %%  "phantom-streams"   % "2.39.0",
+  "com.outworkers" %% "phantom-dsl" % "2.39.0",
+  "com.outworkers" %% "phantom-streams" % "2.39.0",
   "de.heikoseeberger" %% "akka-http-circe" % "1.18.0",
   "net.codingwell" %% "scala-guice" % "4.2.3",
   "com.typesafe.akka" %% "akka-actor" % "2.5.21",
@@ -30,6 +30,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-testing" % circeVersion,
   "ch.megard" %% "akka-http-cors" % "0.4.0",
   "com.typesafe.slick" %% "slick" % "3.3.0",
+  "com.outworkers" %% "util-testing" % "0.50.0" % Test,
   "com.typesafe.slick" %% "slick-hikaricp" % "3.3.0",
   "com.typesafe.slick" %% "slick-testkit" % "3.3.0" % "test",
   "com.github.blemale" %% "scaffeine" % "2.5.0" % "compile",
@@ -37,16 +38,12 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-testkit" % "10.1.7" % Test,
   "com.typesafe.akka" %% "akka-testkit" % "2.5.21" % Test,
   "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.21" % Test,
-  "org.scalatest" %% "scalatest" % "3.0.3" % Test,
+  "org.scalactic" %% "scalactic" % "3.0.5",
+  "org.scalatest" %% "scalatest" % "3.0.5" % Test,
   "org.scalamock" %% "scalamock" % "4.1.0" % Test,
-  "joda-time" % "joda-time"    % "2.3",
-  "org.joda"  % "joda-convert" % "1.6"
+  "joda-time" % "joda-time" % "2.3",
+  "org.joda" % "joda-convert" % "1.6"
 )
 
 
-scalacOptions ++=  Seq(
-  "-feature",
-  "-unchecked",
-  // "-deprecation:false", // uncomment if you *must* use deprecated apis
-  "-Xlint:unsound-match"
-)
+

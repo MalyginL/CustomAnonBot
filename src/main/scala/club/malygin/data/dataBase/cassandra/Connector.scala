@@ -9,5 +9,6 @@ object Connector {
   private val keyspace = config.getString("db.cassandra.keyspace")
 
   lazy val connector: CassandraConnection = ContactPoints(Seq(hosts)).keySpace(keyspace)
+  lazy val testconnector: CassandraConnection = ContactPoints(Seq(hosts)).keySpace("test")
 
 }

@@ -1,6 +1,6 @@
 package club.malygin.data.dataBase.cassandra
 
-import com.outworkers.phantom.Table
+import com.outworkers.phantom.{ResultSet, Table}
 import com.outworkers.phantom.dsl._
 
 import scala.concurrent.Future
@@ -40,4 +40,16 @@ abstract class ChatLongsTable extends Table[ChatLongsTable, ChatLogsModel] {
       .value(_.time, chatLogsModel.time)
       .future()
 
+
+  def customDelete(chat: ChatLogsModel): Future[ResultSet] = {
+    delete
+      .where(_.id eqs chat.id)
+      .and(_.user eqs chat.user)
+      .and(_.time eqs chat.time)
+      .consistencyLevel_=(ConsistencyLevel.ONE)
+      .future()
+  }
+
+
 }
+

@@ -80,7 +80,7 @@ object Schema {
 
   val users = TableQuery[UsersTable]
 
-  val sqldb                = Database.forConfig("db.postgres")
   val profile: JdbcProfile = slick.jdbc.PostgresProfile
 
 }
+

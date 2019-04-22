@@ -1,7 +1,7 @@
 package club.malygin.web
 
 import akka.http.scaladsl.model.StatusCodes.BadRequest
-import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCode, StatusCodes}
+import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import club.malygin.data.appStat.AppStatModel

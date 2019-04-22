@@ -1,14 +1,18 @@
 package club.malygin.data.dataBase.pg.dao
 
+import club.malygin.Config
 import club.malygin.data.dataBase.pg.model.QuizQuestions
 import club.malygin.data.dataBase.pg.Schema
+import slick.jdbc.PostgresProfile.api._
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import scala.concurrent.Future
 
-class QuizQuestionService extends QuizQuestionDao {
+class QuizQuestionService(sqldb: Database) extends QuizQuestionDao {
 
   import Schema.questions
   import Schema.results
-  import Schema.sqldb
+
   import Schema.profile.api._
 
   def getCurrentwithAnswer(id: Long): Future[Seq[QuizQuestions]] = {
@@ -26,6 +30,9 @@ class QuizQuestionService extends QuizQuestionDao {
     sqldb.run(questions.filter(_.status === true).result)
 
   override def getAll: Future[Seq[QuizQuestions]] = sqldb.run(questions.result)
+
+  override def add(quizQuestions: QuizQuestions): Future[Unit] =
+    sqldb.run(questions += quizQuestions).map(_ => ())
 }
 
-object QuizQuestionService extends QuizQuestionService
+object QuizQuestionService extends QuizQuestionService(Config.sqldb)

@@ -2,17 +2,20 @@ package club.malygin.data.dataBase.pg.dao
 
 import java.util.UUID
 
+import club.malygin.Config
 import club.malygin.data.dataBase.pg.model.QuizResults
 import club.malygin.data.dataBase.pg.Schema
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+import slick.jdbc.PostgresProfile.api._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class QuizResultsService extends QuizResultsDao {
+class QuizResultsService(sqldb:Database) extends QuizResultsDao {
 
   import Schema.results
-  import Schema.sqldb
+
   import Schema.profile.api._
 
   override def saveOrUpdate(quizResults: QuizResults): Future[Unit] =
@@ -33,4 +36,4 @@ class QuizResultsService extends QuizResultsDao {
     sqldb.run(results.filter(_.quizId === quizId).filter(_.userId === userId).take(1).result.head)
 }
 
-object QuizResultsService extends QuizResultsService
+object QuizResultsService extends QuizResultsService(Config.sqldb)

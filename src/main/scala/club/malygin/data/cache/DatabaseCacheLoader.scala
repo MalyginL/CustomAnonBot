@@ -2,10 +2,11 @@ package club.malygin.data.cache
 import club.malygin.data.dataBase.pg.dao.UsersService
 
 import javax.inject.Named
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait CacheLoader {
+trait CacheLoader extends {
 
   def load(key: Long): Future[Long]
 

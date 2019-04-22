@@ -2,17 +2,19 @@ package club.malygin.data.dataBase.pg.dao
 
 import java.util.UUID
 
+import club.malygin.Config
 import club.malygin.data.dataBase.pg.Schema
 import club.malygin.data.dataBase.pg.model.Users
+import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class UsersService extends UsersDao {
+class UsersService(sqldb:Database) extends UsersDao {
 
   import Schema.users
   import Schema.results
-  import Schema.sqldb
+
   import Schema.profile.api._
 
   override def saveOrUpdate(user: Users): Future[Unit] = sqldb.run(users.insertOrUpdate(user)).map(_ => ())
@@ -100,4 +102,4 @@ class UsersService extends UsersDao {
 
 }
 
-object UsersService extends UsersService
+object UsersService extends UsersService(Config.sqldb)

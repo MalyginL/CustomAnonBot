@@ -15,7 +15,6 @@ class ActorModule extends AbstractModule with ScalaModule {
     bind(new TypeLiteral[UserPairCache[Long, Long]]() {})
       .to(classOf[UserPairCacheImpl])
     bind(classOf[AppStatistic]).to(classOf[AppStatisticImpl])
-    bind(classOf[QuizQuestionDao]).to(classOf[QuizQuestionService])
 
   }
 

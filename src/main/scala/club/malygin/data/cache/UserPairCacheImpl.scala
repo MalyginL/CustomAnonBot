@@ -1,11 +1,12 @@
 package club.malygin.data.cache
 
-import com.github.blemale.scaffeine.{AsyncLoadingCache, Scaffeine}
+import com.github.blemale.scaffeine.{AsyncLoadingCache, LoadingCache, Scaffeine}
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject.{Inject, Named, Singleton}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @Named
 @Singleton
@@ -22,7 +23,8 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader) extends UserPairCach
       .recordStats()
       .expireAfterAccess(expire)
       .maximumSize(maxSize)
-      .buildAsyncFuture(e => cacheLoader.load(e))
+      .buildAsyncFuture((i:Long) => cacheLoader.load(i))
+
 
   logger.info(s"Cache initialize with $maxSize pool and $expire expire time")
 

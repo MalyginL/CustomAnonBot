@@ -10,4 +10,5 @@ trait QuizQuestionDao {
 
   def getAll: Future[Seq[QuizQuestions]]
 
+  def add(quizQuestion:QuizQuestions):Future[Unit]
 }
