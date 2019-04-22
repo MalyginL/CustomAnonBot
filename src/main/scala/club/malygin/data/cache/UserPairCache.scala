@@ -22,10 +22,9 @@ trait UserPairCache[A, B] {
     * value associated with `key`, the old value is replaced by `value`. If the
     * asynchronous computation fails, the entry will be automatically removed.
     */
-
   def addToCache(key: A, value: B): Unit
 
-  def deletePair(first: A, second: A):Unit
+  def deletePair(first: A, second: A): Unit
 
   /**
     * Return Map of current cache

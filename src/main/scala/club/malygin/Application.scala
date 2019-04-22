@@ -8,7 +8,6 @@ import club.malygin.web.WebController
 import com.google.inject.Guice
 import com.typesafe.scalalogging.LazyLogging
 
-
 object Application extends App with LazyLogging {
 
   val injector = Guice.createInjector(new ActorModule)

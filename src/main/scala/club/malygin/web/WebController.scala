@@ -20,8 +20,8 @@ class WebController @Inject()(webService: WebService) extends FailFastCirceSuppo
     RejectionHandler
       .newBuilder()
       .handleAll[MalformedRequestContentRejection] { _ =>
-      complete(StatusCodes.BadRequest, "You are not Telegram!")
-    }
+        complete(StatusCodes.BadRequest, "You are not Telegram!")
+      }
       .result()
 
   private def statRoutes: Route = cors() {
@@ -37,14 +37,13 @@ class WebController @Inject()(webService: WebService) extends FailFastCirceSuppo
     (path("api" / "cache" / "current") & get) {
       complete(webService.currentPairs)
     } ~
-      (path("api" / "logs" / LongNumber) & get) {
-        number => complete(Marshal(webService.loadUserMessageHistory(number)).to[RequestEntity])
+      (path("api" / "logs" / LongNumber) & get) { number =>
+        complete(Marshal(webService.loadUserMessageHistory(number)).to[RequestEntity])
       } ~
       (path("api" / "logs" / "clear") & get) {
         webService.truncateCassandra
         complete(StatusCodes.OK)
       }
-
 
   private def telegramRoutes: Route =
     handleRejections(TelegramRejectionHandler) {

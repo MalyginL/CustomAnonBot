@@ -161,7 +161,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
                 )
               })
           }
-        case _ => sendMessage("please complete registration and you /search command", actorName.toInt)
+        case _ => sendMessage("please complete registration and use /search command", actorName.toInt)
       }
 
     case ReceiveTimeout =>
