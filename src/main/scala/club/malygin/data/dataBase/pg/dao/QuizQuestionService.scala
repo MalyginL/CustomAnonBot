@@ -1,22 +1,21 @@
 package club.malygin.data.dataBase.pg.dao
 
-import java.util.concurrent.Executors
-
 import club.malygin.{Application, Config}
 import club.malygin.data.dataBase.pg.model.QuizQuestions
 import club.malygin.data.dataBase.pg.Schema
 import slick.jdbc.PostgresProfile.api._
+import com.google.inject.Singleton
+import javax.inject.Inject
 
-import scala.concurrent.{ExecutionContext, Future}
-
-class QuizQuestionService(sqldb: Database)(implicit context: ExecutionContext) extends QuizQuestionDao {
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future}
+@Singleton
+class QuizQuestionService @Inject()(sqldb: Database)(implicit executionContextExecutorService:ExecutionContextExecutorService) extends QuizQuestionDao {
 
   import Schema.questions
   import Schema.results
-  implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
   import Schema.profile.api._
 
-  def getActiveWithAnswer(id: Long): Future[Seq[QuizQuestions]] = {
+  override def getActiveWithAnswer(id: Long): Future[Seq[QuizQuestions]] = {
     val q = for {
       q <- questions
       r <- results
@@ -36,4 +35,4 @@ class QuizQuestionService(sqldb: Database)(implicit context: ExecutionContext) e
     sqldb.run(questions += quizQuestions).map(_ => ())
 }
 
-object QuizQuestionService extends QuizQuestionService(Config.sqldb)(Application.ec)
+//object QuizQuestionService extends QuizQuestionService(Config.sqldb)

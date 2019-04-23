@@ -2,13 +2,14 @@ package club.malygin.telegram
 
 import akka.actor.{Actor, ActorRef, Props}
 import club.malygin.data.cache.UserPairCache
+import club.malygin.data.dataBase.pg.dao.{QuizQuestionDao, QuizResultsDao, UsersDao}
 import club.malygin.web.model.Update
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject.Inject
 
 case class ActorState(value: String, actorName: String)
 
-class RouterActor @Inject()(cache: UserPairCache[Long, Long]) extends Actor with LazyLogging {
+class RouterActor @Inject()(cache: UserPairCache[Long, Long],usersDao: UsersDao, quizResultsDao: QuizResultsDao, quizQuestionDao: QuizQuestionDao) extends Actor with LazyLogging {
 
   override def receive(): Receive = {
     case update: Update =>
@@ -48,12 +49,12 @@ class RouterActor @Inject()(cache: UserPairCache[Long, Long]) extends Actor with
       idleChildren.get(id) match {
         case Some(state: ActorState) =>
           logger.info(s"loading actor id $id with state $state")
-          val child = context.actorOf(Props(new UserActor(cache)), id)
+          val child = context.actorOf(Props(new UserActor(cache,usersDao,quizResultsDao,quizQuestionDao)), id)
           child ! state
           child
         case None =>
           logger.info(s"creating new actor with id $id")
-          val child = context.actorOf(Props(new UserActor(cache)), id)
+          val child = context.actorOf(Props(new UserActor(cache,usersDao,quizResultsDao,quizQuestionDao)), id)
           child ! ActorState("init", "parent")
           child
       }

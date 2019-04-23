@@ -4,7 +4,7 @@ import akka.actor.ActorRef
 import club.malygin.data.appStat.{AppStatModel, AppStatistic}
 import club.malygin.data.cache.{CacheStatModel, UserPairCache}
 import club.malygin.data.dataBase.cassandra.{CassandraDatabase, ChatLogsModel}
-import club.malygin.data.dataBase.pg.dao.QuizQuestionService
+import club.malygin.data.dataBase.pg.dao.{QuizQuestionDao, QuizQuestionService}
 import club.malygin.data.dataBase.pg.model.QuizQuestions
 import club.malygin.web.model.Update
 import com.outworkers.phantom.ResultSet
@@ -15,6 +15,7 @@ import scala.concurrent.Future
 
 @Named
 class WebService @Inject()(
+                            quizQuestionDao: QuizQuestionDao,
                             cache: UserPairCache[Long, Long],
                             appStatistic: AppStatistic,
                             @Named("routerActor") routerActor: ActorRef
@@ -34,9 +35,9 @@ class WebService @Inject()(
 
   def getAppInfo: AppStatModel = appStatistic.getAppStatistic
 
-  def getCurrentTasks: Future[Seq[QuizQuestions]] = QuizQuestionService.getActive
+  def getCurrentTasks: Future[Seq[QuizQuestions]] = quizQuestionDao.getActive
 
-  def addTask: Future[Unit] = ??? //todo
+  def addTask(quizQuestions: QuizQuestions): Future[Unit] = quizQuestionDao.add(quizQuestions)
 
   def loadUserMessageHistory(user: BigInt): Future[Seq[ChatLogsModel]] = CassandraDatabase.getUserMessages(user)
 

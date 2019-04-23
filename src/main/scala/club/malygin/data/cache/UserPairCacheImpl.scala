@@ -4,13 +4,13 @@ import com.github.blemale.scaffeine.{AsyncLoadingCache, LoadingCache, Scaffeine}
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject.{Inject, Named, Singleton}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future}
 import scala.concurrent.duration._
-import club.malygin.Application.ec
+import club.malygin.Config.ec
 
 @Named
 @Singleton
-class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader) extends UserPairCache[Long, Long] with LazyLogging {
+class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader)(implicit executionContextExecutorService:ExecutionContextExecutorService) extends UserPairCache[Long, Long] with LazyLogging {
 
   /**
     * Can't use writer(cacheWriter) due these two features are incompatible

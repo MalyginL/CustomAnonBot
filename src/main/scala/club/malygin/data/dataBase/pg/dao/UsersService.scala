@@ -7,10 +7,13 @@ import club.malygin.data.dataBase.pg.Schema
 import club.malygin.data.dataBase.pg.model.Users
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.{ExecutionContext, Future}
+import com.google.inject.Singleton
+import javax.inject.Inject
 
+import scala.concurrent.{ExecutionContextExecutorService, Future}
 
-class UsersService(sqldb: Database)(implicit context: ExecutionContext) extends UsersDao {
+@Singleton
+class UsersService @Inject()(sqldb: Database)(implicit executionContextExecutorService:ExecutionContextExecutorService) extends UsersDao {
 
   import Schema.users
   import Schema.results
@@ -19,31 +22,28 @@ class UsersService(sqldb: Database)(implicit context: ExecutionContext) extends 
 
   override def saveOrUpdate(user: Users): Future[Unit] = sqldb.run(users.insertOrUpdate(user)).map(_ => ())
 
-  def find(user: Long, quizId: UUID): Future[Long] = {
+  private final val NOTSEARCHING = -1L
+  private final val SEARCHING = 0L
 
-    /**
-      * status 0 - searching
-      * status -1 - not searching
-      *
-      **/
+  override def find(user: Long, quizId: UUID): Future[Long] = {
     val q = for {
       u <- users
       r <- results
       if u.userId === r.userId &&
         r.userId =!= user &&
-        u.searching_for === quizId &&
+        u.searchingFor === quizId &&
         r.quizId === quizId &&
-        u.status === 0L &&
+        u.status === SEARCHING &&
         !(r.result in results.filter(_.quizId === quizId).filter(_.userId === user).take(1).map(_.result))
     } yield u.userId
     sqldb.run(q.take(1).result.head)
   }
 
-  def setPair(init: Long, companion: Long, quiz: UUID): Future[Unit] = {
+  override def setPair(init: Long, companion: Long, quiz: UUID): Future[Unit] = {
 
     val first = users
       .filter(_.userId === init)
-      .map(c => (c.status, c.searching_for))
+      .map(c => (c.status, c.searchingFor))
       .update((Some(companion), Some(quiz)))
 
     val second = users
@@ -63,17 +63,17 @@ class UsersService(sqldb: Database)(implicit context: ExecutionContext) extends 
       .map(_ => ())
   }
 
-  def clearPair(firstId: Long, secondId: Long): Future[Unit] = {
+  override def clearPair(firstId: Long, secondId: Long): Future[Unit] = {
 
     val first = users
       .filter(_.userId === firstId)
       .map(_.status)
-      .update(Some(-1L))
+      .update(Some(NOTSEARCHING))
 
     val second = users
       .filter(_.userId === secondId)
       .map(_.status)
-      .update(Some(-1L))
+      .update(Some(NOTSEARCHING))
 
     sqldb
       .run(
@@ -88,20 +88,20 @@ class UsersService(sqldb: Database)(implicit context: ExecutionContext) extends 
 
   }
 
-  def updateStatusToActive(userId: Long, quiz: UUID): Future[Unit] = {
+  override def updateStatusToActive(userId: Long, quiz: UUID): Future[Unit] = {
     val q = users
       .filter(_.userId === userId)
-      .map(c => (c.status, c.searching_for))
-      .update((Some(0), Some(quiz)))
+      .map(c => (c.status, c.searchingFor))
+      .update((Some(SEARCHING), Some(quiz)))
     sqldb.run(q).map(_ => ())
   }
 
-  def getCompanion(userId: Long): Future[Option[Long]] = {
+  override def getCompanion(userId: Long): Future[Option[Long]] = {
     val q = users.filter(_.userId === userId).map(_.status)
     sqldb.run(q.take(1).result.head)
   }
 
-  override def add(user: Users): Future[Unit] =   sqldb.run(users += user).map(_ => ())
+  override def add(user: Users): Future[Unit] = sqldb.run(users += user).map(_ => ())
 }
 
-object UsersService extends UsersService(Config.sqldb)(Application.ec)
+//object UsersService extends UsersService(Config.sqldb)

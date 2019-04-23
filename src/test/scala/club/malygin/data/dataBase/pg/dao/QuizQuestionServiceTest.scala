@@ -3,7 +3,7 @@ package club.malygin.data.dataBase.pg.dao
 import java.util.UUID
 import java.util.concurrent.Executors
 
-import club.malygin.Application
+import club.malygin.{Application, TestConfig}
 import club.malygin.data.dataBase.pg.model.{QuizQuestions, QuizResults}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -11,16 +11,14 @@ import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext
 class QuizQuestionServiceTest extends FlatSpec with Matchers with MockFactory with ScalaFutures with BeforeAndAfterAll {
-  implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(10))
-  import slick.jdbc.PostgresProfile.api._
-  private val testdb        = Database.forConfig("db.test")
+  implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
+  private val testdb        = TestConfig.testdb
   private val service       = new QuizQuestionService(testdb)
   private val resultService = new QuizResultsService(testdb)
   private val active        = UUID.randomUUID()
   private val notActive     = UUID.randomUUID()
 
   override def beforeAll(): Unit = {
-
     super.beforeAll()
     service.add(
       QuizQuestions(
@@ -45,20 +43,24 @@ class QuizQuestionServiceTest extends FlatSpec with Matchers with MockFactory wi
   }
 
   "getActive" should "should return only active questions" in {
-    service.getActive.map {res =>
+    whenReady(service.getActive){res =>
       res.count(_.quizIdd == active) == 1 shouldBe true
     }
   }
 
   "getAll" should "should return all questions" in {
-   service.getAll.map { res =>
+    whenReady(service.getAll){ res =>
       res.count(x => x.quizIdd == active || x.quizIdd == notActive) == 2 shouldBe true
     }
   }
   "getCurrentwithAnswer" should "return " in {
-    (service.getActiveWithAnswer(1L)).map { res =>
+    whenReady(service.getActiveWithAnswer(1L)){ res =>
       res.count(_.quizIdd == active) shouldBe 1
     }
+  }
+
+  override def afterAll(): Unit ={
+    testdb.close()
   }
 
 }

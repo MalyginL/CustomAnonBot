@@ -24,7 +24,7 @@ trait Testing
     with Provider
 
 class ChatLogsDaoTest extends Testing {
-  implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(10))
+  implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
   override def beforeAll(): Unit = {
     super.beforeAll()
     database.create()

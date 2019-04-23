@@ -1,5 +1,7 @@
 package club.malygin.web
 
+import java.util.concurrent.Executors
+
 import akka.http.scaladsl.model.StatusCodes.BadRequest
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Route
@@ -10,8 +12,10 @@ import org.scalatest.{FlatSpec, Matchers}
 import club.malygin.data.cache.CacheStatModel
 import org.scalatest.concurrent.ScalaFutures
 
-class WebControllerTest extends FlatSpec with Matchers with ScalatestRouteTest with MockFactory with ScalaFutures {
+import scala.concurrent.ExecutionContext
 
+class WebControllerTest extends FlatSpec with Matchers with ScalatestRouteTest with MockFactory with ScalaFutures {
+  implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
   val mockedService = stub[WebService]
   val routes: Route = new WebController(mockedService).routes
   (mockedService.statistic _).when().returns(CacheStatModel(1.0, 1.0, 1L, 1L))

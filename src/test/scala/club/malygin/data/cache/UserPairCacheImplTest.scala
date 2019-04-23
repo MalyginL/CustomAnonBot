@@ -2,11 +2,12 @@ package club.malygin.data.cache
 
 import java.util.concurrent.Executors
 
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserPairCacheImplTest extends FlatSpec with Matchers with BeforeAndAfter {
+class UserPairCacheImplTest extends FlatSpec with Matchers with BeforeAndAfter with ScalaFutures {
   implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
   private val cacheLoader = new CacheLoader {
     override def load(key: Long): Future[Long] = Future(key + 333)
@@ -15,12 +16,12 @@ class UserPairCacheImplTest extends FlatSpec with Matchers with BeforeAndAfter {
   "cache" should "return stored value" in {
     val cache = new UserPairCacheImpl(cacheLoader)
     cache.addToCache(1, 2)
-    cache.loadFromCache(1).map(_ shouldBe 2L)
+    whenReady(cache.loadFromCache(1)){_ shouldBe 2L}
   }
 
   "cache" should "should ask cacheLoader if key/value pair is not contained" in {
     val cache = new UserPairCacheImpl(cacheLoader)
-    cache.loadFromCache(1).map(_ shouldBe 334L)
+    whenReady(cache.loadFromCache(1)){_ shouldBe 334L}
   }
 
   "cache" should "should return statistic" in {

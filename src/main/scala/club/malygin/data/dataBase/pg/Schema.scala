@@ -5,16 +5,16 @@ import java.util.UUID
 
 import org.joda.time.DateTime
 import club.malygin.data.dataBase.pg.model._
-import slick.jdbc.JdbcProfile
+import slick.ast.BaseTypedType
+import slick.jdbc.{JdbcProfile, JdbcType}
 
-import scala.concurrent.Future
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.ProvenShape
 
 object Schema {
   implicit val uuidMapper: BaseColumnType[String] = MappedColumnType.base[String, UUID](UUID.fromString, _.toString)
 
-  implicit def dateTime =
+  implicit def dateTime: JdbcType[DateTime] with BaseTypedType[DateTime] =
     MappedColumnType.base[DateTime, Timestamp](
       dt => new Timestamp(dt.getMillis),
       ts => new DateTime(ts.getTime)
@@ -68,12 +68,12 @@ object Schema {
 
     def status: Rep[Option[Long]] = column("status")
 
-    def last_online: Rep[Option[DateTime]] = column("last_online")
+    def lastOnline: Rep[Option[DateTime]] = column("last_online")
 
-    def searching_for: Rep[Option[UUID]] = column("searching_for")
+    def searchingFor: Rep[Option[UUID]] = column("searching_for")
 
     override def * : ProvenShape[Users] =
-      (userId, firstName, lastName, username, status, last_online, searching_for) <> (Users.tupled, Users.unapply)
+      (userId, firstName, lastName, username, status, lastOnline, searchingFor) <> (Users.tupled, Users.unapply)
 
   }
 

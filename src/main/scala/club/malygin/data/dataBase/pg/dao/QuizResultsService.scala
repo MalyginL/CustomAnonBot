@@ -6,11 +6,13 @@ import club.malygin.{Application, Config}
 import club.malygin.data.dataBase.pg.model.QuizResults
 import club.malygin.data.dataBase.pg.Schema
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future}
 import scala.util.{Failure, Success}
 import slick.jdbc.PostgresProfile.api._
-
-class QuizResultsService(sqldb: Database)(implicit context: ExecutionContext) extends QuizResultsDao {
+import com.google.inject.Singleton
+import javax.inject.Inject
+@Singleton
+class QuizResultsService@Inject()(sqldb: Database)(implicit executionContextExecutorService:ExecutionContextExecutorService) extends QuizResultsDao {
 
   import Schema.results
 
@@ -34,4 +36,4 @@ class QuizResultsService(sqldb: Database)(implicit context: ExecutionContext) ex
     sqldb.run(results.filter(_.quizId === quizId).filter(_.userId === userId).take(1).result.head)
 }
 
-object QuizResultsService extends QuizResultsService(Config.sqldb)(Application.ec)
+//object QuizResultsService extends QuizResultsService(Config.sqldb)

@@ -7,16 +7,17 @@ import io.circe.syntax._
 import akka.actor.{Actor, ReceiveTimeout}
 import club.malygin.data.cache.UserPairCache
 import club.malygin.data.dataBase.cassandra.{CassandraDatabase, ChatLogsModel}
-import club.malygin.data.dataBase.pg.dao.{QuizQuestionService, QuizResultsService, UsersService}
+import club.malygin.data.dataBase.pg.dao._
 import club.malygin.data.dataBase.pg.model.{CallbackMessage, QuizQuestions, QuizResults, Users}
 import club.malygin.web.model._
 import com.typesafe.scalalogging.LazyLogging
+import javax.inject.Inject
 import org.joda.time.DateTime
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands with LazyLogging {
+class UserActor @Inject()(cache: UserPairCache[Long, Long], usersDao: UsersDao, quizResultsDao: QuizResultsDao, quizQuestionDao: QuizQuestionDao) extends Actor with Commands with LazyLogging {
 
   import context._
 
@@ -37,7 +38,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
           sendMessage(greeting, actorName.toInt)
           message.from match {
             case Some(from) =>
-              UsersService.saveOrUpdate(
+              usersDao.saveOrUpdate(
                 Users(
                   from.id,
                   from.first_name,
@@ -62,7 +63,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/register" =>
           sendMessage("after quiz use /search command to start chat", actorName.toInt)
-          QuizQuestionService.getActive.onComplete { e =>
+          quizQuestionDao.getActive.onComplete { e =>
             e.getOrElse(Seq.empty[QuizQuestions])
               .foreach(question => {
                 sendKeyboard(
@@ -101,13 +102,13 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
           callback.data match {
             case Some(data) =>
               decode[CallbackMessage](data) match {
-                case Right(entity) if entity.ans.isDefined =>
-                  QuizResultsService.saveOrUpdate(
+                case Right(CallbackMessage(entityId, Some(entityAns))) =>
+                  quizResultsDao.saveOrUpdate(
                     QuizResults(
                       UUID.randomUUID,
                       callback.from.id,
-                      UUID.fromString(entity.id),
-                      entity.ans.get //todo
+                      UUID.fromString(entityId),
+                      entityAns
                     )
                   )
                   answerCallbackQueryAndRemove(
@@ -117,7 +118,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
                     callback.from.id
                   )
                 case Left(_) => logger.warn("decoding callback error")
-                case _       => invalidateCallback(callback)
+                case _ => invalidateCallback(callback)
               }
             case None => logger.warn("no result in callback")
           }
@@ -126,7 +127,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
     case message: Message =>
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/search" =>
-          QuizQuestionService
+          quizQuestionDao
             .getActiveWithAnswer(actorName.toLong)
             .map(
               _.map(
@@ -142,7 +143,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
           become(awaitingTopic)
         case Some(text) if message.entities.isDefined && text == "/register" =>
           sendMessage("after quiz use /search command to start chat", actorName.toInt)
-          QuizQuestionService.getActive.onComplete { e =>
+          quizQuestionDao.getActive.onComplete { e =>
             e.getOrElse(Seq.empty[QuizQuestions])
               .foreach(question => {
                 sendKeyboard(
@@ -186,9 +187,9 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
                     message.message_id.intValue,
                     callback.from.id
                   )
-                  UsersService.find(callback.from.id, UUID.fromString(entity.id)).onComplete {
+                  usersDao.find(callback.from.id, UUID.fromString(entity.id)).onComplete {
                     case Success(res) =>
-                      UsersService
+                      usersDao
                         .setPair(callback.from.id, res, UUID.fromString(entity.id))
                         .andThen {
                           case Success(_) =>
@@ -203,7 +204,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
                             context.parent ! ActorState("chatting", res.toString)
                         }
                     case Failure(_) =>
-                      UsersService
+                      usersDao
                         .updateStatusToActive(callback.from.id, UUID.fromString(entity.id))
                         .andThen {
                           case Success(_) =>
@@ -214,7 +215,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
 
                   }
                 case Left(_) => logger.warn("decoding callback error")
-                case _       => invalidateCallback(callback)
+                case _ => invalidateCallback(callback)
               }
             case None => logger.warn("no result in callback")
           }
@@ -224,7 +225,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/register" =>
           sendMessage("after quiz use /search command to start chat", actorName.toInt)
-          QuizQuestionService.getActive.onComplete { e =>
+          quizQuestionDao.getActive.onComplete { e =>
             e.getOrElse(Seq.empty[QuizQuestions])
               .foreach(question => {
                 sendKeyboard(
@@ -279,9 +280,9 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
         case Some(text) if message.entities.isDefined && text == "/leave" =>
           cache.loadFromCache(actorName.toLong).map {
             case -1L =>
-              sendMessage("error, returning",actorName.toInt)
+              sendMessage("error, returning", actorName.toInt)
             case user =>
-              UsersService.clearPair(actorName.toLong, user).andThen {
+              usersDao.clearPair(actorName.toLong, user).andThen {
                 case Success(_) =>
                   cache.deletePair(user, actorName.toLong)
                   sendMessage("chat disconnected", user.toInt)
@@ -319,12 +320,12 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
     case state: ActorState =>
       logger.info(state.toString)
       state.value match {
-        case "init"             => become(init)
-        case "registerStart"    => become(registerStart)
+        case "init" => become(init)
+        case "registerStart" => become(registerStart)
         case "awaitingRegister" => become(awaitingRegister)
-        case "awaitingTopic"    => become(awaitingTopic)
-        case "searching"        => become(searching)
-        case "chatting"         => become(chatting)
+        case "awaitingTopic" => become(awaitingTopic)
+        case "searching" => become(searching)
+        case "chatting" => become(chatting)
       }
   }
 }

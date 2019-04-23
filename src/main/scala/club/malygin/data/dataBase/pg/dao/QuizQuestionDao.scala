@@ -6,6 +6,8 @@ import scala.concurrent.Future
 
 trait QuizQuestionDao {
 
+  def getActiveWithAnswer(id: Long): Future[Seq[QuizQuestions]]
+
   def getActive: Future[Seq[QuizQuestions]]
 
   def getAll: Future[Seq[QuizQuestions]]

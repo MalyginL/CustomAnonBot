@@ -3,6 +3,7 @@ package club.malygin.data.dataBase.pg.dao
 import java.util.UUID
 import java.util.concurrent.Executors
 
+import club.malygin.TestConfig
 import club.malygin.data.dataBase.pg.model.{QuizResults, Users}
 import org.joda.time.DateTime
 import org.scalamock.scalatest.MockFactory
@@ -13,17 +14,11 @@ import scala.concurrent.ExecutionContext
 
 class UsersServiceTest extends FlatSpec with Matchers with MockFactory with ScalaFutures with BeforeAndAfterAll {
 
-  import slick.jdbc.PostgresProfile.api._
+  implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
 
-  implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(10))
-
-  private val testdb = Database.forConfig("db.test")
+  private val testdb = TestConfig.testdb
   val userService = new UsersService(testdb)
   val resultsService = new QuizResultsService(testdb)
-
-
-  override def beforeAll(): Unit = {
-    super.beforeAll()
 
 
     "find" should "return id of companion" in {
@@ -72,6 +67,9 @@ class UsersServiceTest extends FlatSpec with Matchers with MockFactory with Scal
 
     }
 
-
+  override def afterAll(): Unit ={
+    testdb.close()
   }
+
+
 }

@@ -1,7 +1,5 @@
 package club.malygin
 
-import java.util.concurrent.Executors
-
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
@@ -10,10 +8,8 @@ import club.malygin.web.WebController
 import com.google.inject.Guice
 import com.typesafe.scalalogging.LazyLogging
 
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
-
 object Application extends App with LazyLogging {
-  implicit val ec: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(200))
+
   val injector = Guice.createInjector(new ActorModule)
 
   implicit val system: ActorSystem = ActorSystem()

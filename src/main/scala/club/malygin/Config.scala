@@ -1,8 +1,14 @@
 package club.malygin
 
+import java.util.concurrent.Executors
+
 import com.typesafe.config.ConfigFactory
 
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
+
 object Config {
+
+   val ec: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(50))
 
   private val cf = ConfigFactory.load("telegram")
 
