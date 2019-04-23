@@ -10,7 +10,10 @@ import club.malygin.Config.ec
 
 @Named
 @Singleton
-class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader)(implicit executionContextExecutorService:ExecutionContextExecutorService) extends UserPairCache[Long, Long] with LazyLogging {
+class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader)(
+    implicit executionContextExecutorService: ExecutionContextExecutorService
+) extends UserPairCache[Long, Long]
+    with LazyLogging {
 
   /**
     * Can't use writer(cacheWriter) due these two features are incompatible

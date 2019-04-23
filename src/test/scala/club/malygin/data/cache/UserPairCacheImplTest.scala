@@ -16,12 +16,12 @@ class UserPairCacheImplTest extends FlatSpec with Matchers with BeforeAndAfter w
   "cache" should "return stored value" in {
     val cache = new UserPairCacheImpl(cacheLoader)
     cache.addToCache(1, 2)
-    whenReady(cache.loadFromCache(1)){_ shouldBe 2L}
+    whenReady(cache.loadFromCache(1)) { _ shouldBe 2L }
   }
 
   "cache" should "should ask cacheLoader if key/value pair is not contained" in {
     val cache = new UserPairCacheImpl(cacheLoader)
-    whenReady(cache.loadFromCache(1)){_ shouldBe 334L}
+    whenReady(cache.loadFromCache(1)) { _ shouldBe 334L }
   }
 
   "cache" should "should return statistic" in {

@@ -11,7 +11,6 @@ import club.malygin.web.model.{CallbackQuery, InlineKeyboardButton, InlineKeyboa
 import com.typesafe.scalalogging.LazyLogging
 import club.malygin.Application.system
 
-
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
@@ -25,7 +24,9 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
       .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendMessage"), entity = k))
       .flatMap(http.singleRequest(_))
 
-  def answerCallbackQueryAndRemove(id: String, chatId: String, messageId: Int, userId: Int)(implicit executor: ExecutionContext): Unit = {
+  def answerCallbackQueryAndRemove(id: String, chatId: String, messageId: Int, userId: Int)(
+      implicit executor: ExecutionContext
+  ): Unit = {
     val answ = Marshal(AnswerCallbackQuery(id, Some("Answer accepted")))
       .to[RequestEntity]
       .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "answerCallbackQuery"), entity = k))
@@ -41,7 +42,9 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
     }
   }
 
-  def sendKeyboard(id: String, title: String, buttons: Array[InlineKeyboardButton])(implicit executor: ExecutionContext): Unit =
+  def sendKeyboard(id: String, title: String, buttons: Array[InlineKeyboardButton])(
+      implicit executor: ExecutionContext
+  ): Unit =
     Marshal(SendMessage(id.toInt, title, reply_markup = Option(InlineKeyboardMarkup(Array(buttons)))))
       .to[RequestEntity]
       .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendMessage"), entity = k))

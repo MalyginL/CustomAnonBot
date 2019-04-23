@@ -8,7 +8,7 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
 
 object Config {
 
-   val ec: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(50))
+  val ec: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(50))
 
   private val cf = ConfigFactory.load("telegram")
 

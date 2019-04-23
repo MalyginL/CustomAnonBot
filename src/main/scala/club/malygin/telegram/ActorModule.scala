@@ -14,12 +14,12 @@ import scala.concurrent.ExecutionContextExecutorService
 
 class ActorModule extends AbstractModule with ScalaModule {
 
-
   override def configure(): Unit = {
     bind[ActorSystem].toInstance(ActorSystem("telegram"))
     bind(classOf[CacheLoader]).to(classOf[DatabaseCacheLoader]).in(Scopes.SINGLETON)
     bind(new TypeLiteral[UserPairCache[Long, Long]]() {})
-      .to(classOf[UserPairCacheImpl]).in(Scopes.SINGLETON)
+      .to(classOf[UserPairCacheImpl])
+      .in(Scopes.SINGLETON)
     bind(classOf[AppStatistic]).to(classOf[AppStatisticImpl]).in(Scopes.SINGLETON)
     bind(classOf[ExecutionContextExecutorService]).toInstance(Config.ec)
     bind(classOf[PostgresProfile.Backend#Database]).toInstance(Config.sqldb)
@@ -32,11 +32,12 @@ class ActorModule extends AbstractModule with ScalaModule {
   @Provides
   @Named("routerActor")
   def getRouterActor(
-                      usersDao: UsersDao,
-                      quizResultsDao: QuizResultsDao,
-                      quizQuestionDao: QuizQuestionDao,
-                      actorSystem: ActorSystem,
-                      cache: UserPairCache[Long, Long]
-                    ) = actorSystem.actorOf(Props(new RouterActor(cache,usersDao,quizResultsDao,quizQuestionDao)), "TelegramRouterActor")
+      usersDao: UsersDao,
+      quizResultsDao: QuizResultsDao,
+      quizQuestionDao: QuizQuestionDao,
+      actorSystem: ActorSystem,
+      cache: UserPairCache[Long, Long]
+  ) =
+    actorSystem.actorOf(Props(new RouterActor(cache, usersDao, quizResultsDao, quizQuestionDao)), "TelegramRouterActor")
 
 }

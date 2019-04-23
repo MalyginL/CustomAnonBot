@@ -12,7 +12,9 @@ import slick.jdbc.PostgresProfile.api._
 import com.google.inject.Singleton
 import javax.inject.Inject
 @Singleton
-class QuizResultsService@Inject()(sqldb: Database)(implicit executionContextExecutorService:ExecutionContextExecutorService) extends QuizResultsDao {
+class QuizResultsService @Inject()(sqldb: Database)(
+    implicit executionContextExecutorService: ExecutionContextExecutorService
+) extends QuizResultsDao {
 
   import Schema.results
 
@@ -35,5 +37,3 @@ class QuizResultsService@Inject()(sqldb: Database)(implicit executionContextExec
   override def find(quizId: UUID, userId: Long): Future[QuizResults] =
     sqldb.run(results.filter(_.quizId === quizId).filter(_.userId === userId).take(1).result.head)
 }
-
-//object QuizResultsService extends QuizResultsService(Config.sqldb)

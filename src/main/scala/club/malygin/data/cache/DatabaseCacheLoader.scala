@@ -12,18 +12,17 @@ trait CacheLoader extends {
 }
 
 @Named
-class DatabaseCacheLoader @Inject()(userDao: UsersDao)(implicit context: ExecutionContextExecutorService) extends CacheLoader {
+class DatabaseCacheLoader @Inject()(userDao: UsersDao)(implicit context: ExecutionContextExecutorService)
+    extends CacheLoader {
 
   override def load(key: Long): Future[Long] =
     try {
       userDao.getCompanion(key).map {
         case Some(res) => res
-        case None => -1L
+        case None      => -1L
       }
-    }
-    catch {
+    } catch {
       case ex: java.lang.NullPointerException => Future.successful(-1L)
     }
-
 
 }

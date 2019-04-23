@@ -15,7 +15,7 @@ import org.scalatest.concurrent.ScalaFutures
 import scala.concurrent.ExecutionContext
 
 class WebControllerTest extends FlatSpec with Matchers with ScalatestRouteTest with MockFactory with ScalaFutures {
-  implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
+  implicit val ec   = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
   val mockedService = stub[WebService]
   val routes: Route = new WebController(mockedService).routes
   (mockedService.statistic _).when().returns(CacheStatModel(1.0, 1.0, 1L, 1L))

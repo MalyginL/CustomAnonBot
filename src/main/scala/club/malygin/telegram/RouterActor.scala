@@ -9,7 +9,13 @@ import javax.inject.Inject
 
 case class ActorState(value: String, actorName: String)
 
-class RouterActor @Inject()(cache: UserPairCache[Long, Long],usersDao: UsersDao, quizResultsDao: QuizResultsDao, quizQuestionDao: QuizQuestionDao) extends Actor with LazyLogging {
+class RouterActor @Inject()(
+    cache: UserPairCache[Long, Long],
+    usersDao: UsersDao,
+    quizResultsDao: QuizResultsDao,
+    quizQuestionDao: QuizQuestionDao
+) extends Actor
+    with LazyLogging {
 
   override def receive(): Receive = {
     case update: Update =>
@@ -44,21 +50,19 @@ class RouterActor @Inject()(cache: UserPairCache[Long, Long],usersDao: UsersDao,
 
   private var idleChildren = Map.empty[String, ActorState]
 
-    def getChild(id: String): ActorRef =
+  def getChild(id: String): ActorRef =
     context.child(id).getOrElse {
       idleChildren.get(id) match {
         case Some(state: ActorState) =>
           logger.info(s"loading actor id $id with state $state")
-          val child = context.actorOf(Props(new UserActor(cache,usersDao,quizResultsDao,quizQuestionDao)), id)
+          val child = context.actorOf(Props(new UserActor(cache, usersDao, quizResultsDao, quizQuestionDao)), id)
           child ! state
           child
         case None =>
           logger.info(s"creating new actor with id $id")
-          val child = context.actorOf(Props(new UserActor(cache,usersDao,quizResultsDao,quizQuestionDao)), id)
+          val child = context.actorOf(Props(new UserActor(cache, usersDao, quizResultsDao, quizQuestionDao)), id)
           child ! ActorState("init", "parent")
           child
       }
     }
 }
-
-

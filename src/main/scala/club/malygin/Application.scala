@@ -13,13 +13,12 @@ object Application extends App with LazyLogging {
   val injector = Guice.createInjector(new ActorModule)
 
   implicit val system: ActorSystem = ActorSystem()
-  implicit val materializer = ActorMaterializer()
-  implicit val dispatcher = system.dispatcher
+  implicit val materializer        = ActorMaterializer()
+  implicit val dispatcher          = system.dispatcher
 
   private val contoller = injector.getInstance(classOf[WebController])
   logger.info(s"Starting server on ${Config.host}:${Config.port}")
   val http = Http()
   http.bindAndHandle(contoller.routes, Config.host, Config.port)
-
 
 }

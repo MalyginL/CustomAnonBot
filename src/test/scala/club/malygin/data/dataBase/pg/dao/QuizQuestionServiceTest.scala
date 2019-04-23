@@ -7,11 +7,11 @@ import club.malygin.{Application, TestConfig}
 import club.malygin.data.dataBase.pg.model.{QuizQuestions, QuizResults}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext
-class QuizQuestionServiceTest extends FlatSpec with Matchers with MockFactory with ScalaFutures with BeforeAndAfterAll {
-  implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
+class QuizQuestionServiceTest extends FlatSpec with Matchers with MockFactory with ScalaFutures with BeforeAndAfterAll  with BeforeAndAfterEach {
+  implicit val ec           = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
   private val testdb        = TestConfig.testdb
   private val service       = new QuizQuestionService(testdb)
   private val resultService = new QuizResultsService(testdb)
@@ -40,27 +40,32 @@ class QuizQuestionServiceTest extends FlatSpec with Matchers with MockFactory wi
     )
     resultService.save(QuizResults(UUID.randomUUID(), 1L, active, result = true))
     resultService.save(QuizResults(UUID.randomUUID(), 2L, notActive, result = true))
+
+  }
+
+
+  override def beforeEach(): Unit = {
+    Thread.sleep(5000)
   }
 
   "getActive" should "should return only active questions" in {
-    whenReady(service.getActive){res =>
+    whenReady(service.getActive) { res =>
       res.count(_.quizIdd == active) == 1 shouldBe true
     }
   }
 
   "getAll" should "should return all questions" in {
-    whenReady(service.getAll){ res =>
+    whenReady(service.getAll) { res =>
       res.count(x => x.quizIdd == active || x.quizIdd == notActive) == 2 shouldBe true
     }
   }
+
   "getCurrentwithAnswer" should "return " in {
-    whenReady(service.getActiveWithAnswer(1L)){ res =>
+    whenReady(service.getActiveWithAnswer(1L)) { res =>
       res.count(_.quizIdd == active) shouldBe 1
     }
   }
 
-  override def afterAll(): Unit ={
-    testdb.close()
-  }
+
 
 }

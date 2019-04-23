@@ -15,11 +15,11 @@ import scala.concurrent.Future
 
 @Named
 class WebService @Inject()(
-                            quizQuestionDao: QuizQuestionDao,
-                            cache: UserPairCache[Long, Long],
-                            appStatistic: AppStatistic,
-                            @Named("routerActor") routerActor: ActorRef
-                          ) extends LazyLogging {
+    quizQuestionDao: QuizQuestionDao,
+    cache: UserPairCache[Long, Long],
+    appStatistic: AppStatistic,
+    @Named("routerActor") routerActor: ActorRef
+) extends LazyLogging {
 
   def process(json: Update): Unit = {
 

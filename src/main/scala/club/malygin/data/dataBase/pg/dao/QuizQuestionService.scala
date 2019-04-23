@@ -9,7 +9,9 @@ import javax.inject.Inject
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future}
 @Singleton
-class QuizQuestionService @Inject()(sqldb: Database)(implicit executionContextExecutorService:ExecutionContextExecutorService) extends QuizQuestionDao {
+class QuizQuestionService @Inject()(sqldb: Database)(
+    implicit executionContextExecutorService: ExecutionContextExecutorService
+) extends QuizQuestionDao {
 
   import Schema.questions
   import Schema.results
@@ -34,5 +36,3 @@ class QuizQuestionService @Inject()(sqldb: Database)(implicit executionContextEx
   override def add(quizQuestions: QuizQuestions): Future[Unit] =
     sqldb.run(questions += quizQuestions).map(_ => ())
 }
-
-//object QuizQuestionService extends QuizQuestionService(Config.sqldb)

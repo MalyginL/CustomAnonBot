@@ -17,7 +17,14 @@ import org.joda.time.DateTime
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-class UserActor @Inject()(cache: UserPairCache[Long, Long], usersDao: UsersDao, quizResultsDao: QuizResultsDao, quizQuestionDao: QuizQuestionDao) extends Actor with Commands with LazyLogging {
+class UserActor @Inject()(
+    cache: UserPairCache[Long, Long],
+    usersDao: UsersDao,
+    quizResultsDao: QuizResultsDao,
+    quizQuestionDao: QuizQuestionDao
+) extends Actor
+    with Commands
+    with LazyLogging {
 
   import context._
 
@@ -118,7 +125,7 @@ class UserActor @Inject()(cache: UserPairCache[Long, Long], usersDao: UsersDao, 
                     callback.from.id
                   )
                 case Left(_) => logger.warn("decoding callback error")
-                case _ => invalidateCallback(callback)
+                case _       => invalidateCallback(callback)
               }
             case None => logger.warn("no result in callback")
           }
@@ -215,7 +222,7 @@ class UserActor @Inject()(cache: UserPairCache[Long, Long], usersDao: UsersDao, 
 
                   }
                 case Left(_) => logger.warn("decoding callback error")
-                case _ => invalidateCallback(callback)
+                case _       => invalidateCallback(callback)
               }
             case None => logger.warn("no result in callback")
           }
@@ -320,12 +327,12 @@ class UserActor @Inject()(cache: UserPairCache[Long, Long], usersDao: UsersDao, 
     case state: ActorState =>
       logger.info(state.toString)
       state.value match {
-        case "init" => become(init)
-        case "registerStart" => become(registerStart)
+        case "init"             => become(init)
+        case "registerStart"    => become(registerStart)
         case "awaitingRegister" => become(awaitingRegister)
-        case "awaitingTopic" => become(awaitingTopic)
-        case "searching" => become(searching)
-        case "chatting" => become(chatting)
+        case "awaitingTopic"    => become(awaitingTopic)
+        case "searching"        => become(searching)
+        case "chatting"         => become(chatting)
       }
   }
 }

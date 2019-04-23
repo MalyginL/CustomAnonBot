@@ -13,7 +13,8 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContextExecutorService, Future}
 
 @Singleton
-class UsersService @Inject()(sqldb: Database)(implicit executionContextExecutorService:ExecutionContextExecutorService) extends UsersDao {
+class UsersService @Inject()(sqldb: Database)(implicit executionContextExecutorService: ExecutionContextExecutorService)
+    extends UsersDao {
 
   import Schema.users
   import Schema.results
@@ -23,7 +24,7 @@ class UsersService @Inject()(sqldb: Database)(implicit executionContextExecutorS
   override def saveOrUpdate(user: Users): Future[Unit] = sqldb.run(users.insertOrUpdate(user)).map(_ => ())
 
   private final val NOTSEARCHING = -1L
-  private final val SEARCHING = 0L
+  private final val SEARCHING    = 0L
 
   override def find(user: Long, quizId: UUID): Future[Long] = {
     val q = for {
@@ -103,5 +104,3 @@ class UsersService @Inject()(sqldb: Database)(implicit executionContextExecutorS
 
   override def add(user: Users): Future[Unit] = sqldb.run(users += user).map(_ => ())
 }
-
-//object UsersService extends UsersService(Config.sqldb)

@@ -9,11 +9,12 @@ import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import javax.inject.{Inject, Named}
 
 import scala.concurrent.ExecutionContextExecutorService
-
-
-
 @Named
-class WebController @Inject()(webService: WebService)(implicit executionContextExecutorService:ExecutionContextExecutorService) extends FailFastCirceSupport with JsonEncoders with JsonDecoders {
+class WebController @Inject()(webService: WebService)(
+    implicit executionContextExecutorService: ExecutionContextExecutorService
+) extends FailFastCirceSupport
+    with JsonEncoders
+    with JsonDecoders {
 
   import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 
