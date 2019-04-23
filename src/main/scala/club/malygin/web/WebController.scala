@@ -8,8 +8,8 @@ import club.malygin.web.model.Update
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import javax.inject.{Inject, Named}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
+import club.malygin.Application.ec
+
 
 @Named
 class WebController @Inject()(webService: WebService) extends FailFastCirceSupport with JsonEncoders with JsonDecoders {

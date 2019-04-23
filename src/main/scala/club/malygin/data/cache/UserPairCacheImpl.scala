@@ -6,7 +6,7 @@ import javax.inject.{Inject, Named, Singleton}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
+import club.malygin.Application.ec
 
 @Named
 @Singleton
@@ -23,8 +23,7 @@ class UserPairCacheImpl @Inject()(cacheLoader: CacheLoader) extends UserPairCach
       .recordStats()
       .expireAfterAccess(expire)
       .maximumSize(maxSize)
-      .buildAsyncFuture((i:Long) => cacheLoader.load(i))
-
+      .buildAsyncFuture((i: Long) => cacheLoader.load(i))
 
   logger.info(s"Cache initialize with $maxSize pool and $expire expire time")
 

@@ -1,6 +1,6 @@
 package club.malygin.telegram
 
-import akka.actor.{Actor, ActorRef, Props, Terminated}
+import akka.actor.{Actor, ActorRef, Props}
 import club.malygin.data.cache.UserPairCache
 import club.malygin.web.model.Update
 import com.typesafe.scalalogging.LazyLogging
@@ -43,7 +43,7 @@ class RouterActor @Inject()(cache: UserPairCache[Long, Long]) extends Actor with
 
   private var idleChildren = Map.empty[String, ActorState]
 
-  private def getChild(id: String): ActorRef =
+    def getChild(id: String): ActorRef =
     context.child(id).getOrElse {
       idleChildren.get(id) match {
         case Some(state: ActorState) =>
@@ -59,3 +59,5 @@ class RouterActor @Inject()(cache: UserPairCache[Long, Long]) extends Actor with
       }
     }
 }
+
+

@@ -71,12 +71,14 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
                   Array(
                     InlineKeyboardButton(
                       question.firstOption,
-                      Some(CallbackMessage(question.quizIdd.toString, Some(true)).asJson.toString.replaceAll("\\s", ""))
+                      Some(
+                        CallbackMessage(question.quizIdd.toString, Some(true)).asJson.noSpaces
+                      )
                     ),
                     InlineKeyboardButton(
                       question.secondOption,
                       Some(
-                        CallbackMessage(question.quizIdd.toString, Some(false)).asJson.toString.replaceAll("\\s", "")
+                        CallbackMessage(question.quizIdd.toString, Some(false)).asJson.noSpaces
                       )
                     )
                   )
@@ -125,13 +127,13 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/search" =>
           QuizQuestionService
-            .getCurrentwithAnswer(actorName.toLong)
+            .getActiveWithAnswer(actorName.toLong)
             .map(
               _.map(
                 q =>
                   InlineKeyboardButton(
                     q.text,
-                    Some(CallbackMessage(q.quizIdd.toString).asJson.toString.replaceAll("\\s", ""))
+                    Some(CallbackMessage(q.quizIdd.toString).asJson.noSpaces)
                   )
               )
             )
@@ -149,12 +151,12 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
                   Array(
                     InlineKeyboardButton(
                       question.firstOption,
-                      Some(CallbackMessage(question.quizIdd.toString, Some(true)).asJson.toString.replaceAll("\\s", ""))
+                      Some(CallbackMessage(question.quizIdd.toString, Some(true)).asJson.noSpaces)
                     ),
                     InlineKeyboardButton(
                       question.secondOption,
                       Some(
-                        CallbackMessage(question.quizIdd.toString, Some(false)).asJson.toString.replaceAll("\\s", "")
+                        CallbackMessage(question.quizIdd.toString, Some(false)).asJson.noSpaces
                       )
                     )
                   )
@@ -231,13 +233,11 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
                   Array(
                     InlineKeyboardButton(
                       question.firstOption,
-                      Some(CallbackMessage(question.quizIdd.toString, Some(true)).asJson.toString.replaceAll("\\s", ""))
+                      Some(CallbackMessage(question.quizIdd.toString, Some(true)).asJson.noSpaces)
                     ),
                     InlineKeyboardButton(
                       question.secondOption,
-                      Some(
-                        CallbackMessage(question.quizIdd.toString, Some(false)).asJson.toString.replaceAll("\\s", "")
-                      )
+                      Some(CallbackMessage(question.quizIdd.toString, Some(false)).asJson.noSpaces)
                     )
                   )
                 )
@@ -279,6 +279,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
         case Some(text) if message.entities.isDefined && text == "/leave" =>
           cache.loadFromCache(actorName.toLong).map {
             case -1L =>
+              sendMessage("error, returning",actorName.toInt)
             case user =>
               UsersService.clearPair(actorName.toLong, user).andThen {
                 case Success(_) =>
@@ -312,7 +313,7 @@ class UserActor(cache: UserPairCache[Long, Long]) extends Actor with Commands wi
   }
 
   val greeting =
-    "Hello friend!\nAnswer the question so that I can pick up the interlocutor\nYou can change your choice with the command\n /register"
+    "Hello friend!\nAnswer the question to pick up the interlocutor\nYou can change your choice with the command\n /register"
 
   override def receive: Receive = {
     case state: ActorState =>

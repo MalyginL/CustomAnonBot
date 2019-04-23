@@ -2,15 +2,15 @@ package club.malygin.data.dataBase.pg.dao
 
 import java.util.UUID
 
-import club.malygin.Config
+import club.malygin.{Application, Config}
 import club.malygin.data.dataBase.pg.Schema
 import club.malygin.data.dataBase.pg.model.Users
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
-class UsersService(sqldb:Database) extends UsersDao {
+
+class UsersService(sqldb: Database)(implicit context: ExecutionContext) extends UsersDao {
 
   import Schema.users
   import Schema.results
@@ -50,6 +50,7 @@ class UsersService(sqldb:Database) extends UsersDao {
       .filter(_.userId === companion)
       .map(_.status)
       .update(Some(init))
+
     sqldb
       .run(
         DBIO
@@ -100,6 +101,7 @@ class UsersService(sqldb:Database) extends UsersDao {
     sqldb.run(q.take(1).result.head)
   }
 
+  override def add(user: Users): Future[Unit] =   sqldb.run(users += user).map(_ => ())
 }
 
-object UsersService extends UsersService(Config.sqldb)
+object UsersService extends UsersService(Config.sqldb)(Application.ec)

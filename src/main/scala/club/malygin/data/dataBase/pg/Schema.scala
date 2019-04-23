@@ -21,7 +21,6 @@ object Schema {
     )
 
   import slick.jdbc.PostgresProfile.api._
-  import org.postgresql.Driver._
 
   class QuestionsTable(tag: Tag) extends Table[QuizQuestions](tag, "quiz_q") {
 
@@ -83,4 +82,3 @@ object Schema {
   val profile: JdbcProfile = slick.jdbc.PostgresProfile
 
 }
-

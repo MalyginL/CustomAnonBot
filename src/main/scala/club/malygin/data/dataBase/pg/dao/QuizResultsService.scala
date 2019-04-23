@@ -2,17 +2,15 @@ package club.malygin.data.dataBase.pg.dao
 
 import java.util.UUID
 
-import club.malygin.Config
+import club.malygin.{Application, Config}
 import club.malygin.data.dataBase.pg.model.QuizResults
 import club.malygin.data.dataBase.pg.Schema
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-class QuizResultsService(sqldb:Database) extends QuizResultsDao {
+class QuizResultsService(sqldb: Database)(implicit context: ExecutionContext) extends QuizResultsDao {
 
   import Schema.results
 
@@ -36,4 +34,4 @@ class QuizResultsService(sqldb:Database) extends QuizResultsDao {
     sqldb.run(results.filter(_.quizId === quizId).filter(_.userId === userId).take(1).result.head)
 }
 
-object QuizResultsService extends QuizResultsService(Config.sqldb)
+object QuizResultsService extends QuizResultsService(Config.sqldb)(Application.ec)

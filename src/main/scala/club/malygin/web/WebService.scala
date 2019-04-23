@@ -15,13 +15,17 @@ import scala.concurrent.Future
 
 @Named
 class WebService @Inject()(
-    cache: UserPairCache[Long, Long],
-    appStatistic: AppStatistic,
-    @Named("routerActor") routerActor: ActorRef
-) extends LazyLogging {
+                            cache: UserPairCache[Long, Long],
+                            appStatistic: AppStatistic,
+                            @Named("routerActor") routerActor: ActorRef
+                          ) extends LazyLogging {
 
-  def process(json: Update): Unit =
+  def process(json: Update): Unit = {
+
     routerActor ! json
+
+    logger.warn(json.toString)
+  }
 
   def statistic: CacheStatModel = cache.loadStatistic
 

@@ -13,14 +13,14 @@ class ChatLogsDao(override val connector: CassandraConnection) extends Database[
   object ChatLongsTable extends ChatLongsTable with connector.Connector
 
   def truncateAll = Future {
-    CassandraDatabase.truncate(1.second)
+    this.truncate(1.second)
   }
 
   def save(chat: ChatLogsModel): Future[ResultSet] = ChatLongsTable.customStore(chat)
 
   def getUserMessages(user: BigInt): Future[Seq[ChatLogsModel]] = ChatLongsTable.getByUserId(user)
 
-  def delete(chat: ChatLogsModel): Future[ResultSet] =  ChatLongsTable.customDelete(chat)
+  def delete(chat: ChatLogsModel): Future[ResultSet] = ChatLongsTable.customDelete(chat)
 }
 
 object CassandraDatabase extends ChatLogsDao(Connector.connector)

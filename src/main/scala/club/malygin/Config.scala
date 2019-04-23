@@ -12,5 +12,5 @@ object Config {
   final val port: Int          = cf.getInt("server.port")
 
   import slick.jdbc.PostgresProfile.api._
-  val sqldb  = Database.forConfig("db.postgres")
+  val sqldb = Database.forConfig("db.postgres")
 }

@@ -1,16 +1,16 @@
 package club.malygin.data.cache
 
+import java.util.concurrent.Executors
+
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class UserPairCacheImplTest extends FlatSpec with Matchers with BeforeAndAfter {
-
+  implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
   private val cacheLoader = new CacheLoader {
     override def load(key: Long): Future[Long] = Future(key + 333)
   }
-
 
   "cache" should "return stored value" in {
     val cache = new UserPairCacheImpl(cacheLoader)
@@ -53,6 +53,5 @@ class UserPairCacheImplTest extends FlatSpec with Matchers with BeforeAndAfter {
     cache.loadFromCache(1).map(_ shouldBe 334L)
     cache.loadFromCache(2).map(_ shouldBe 335L)
   }
-
 
 }

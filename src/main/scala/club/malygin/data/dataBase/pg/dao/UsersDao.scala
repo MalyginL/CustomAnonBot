@@ -8,4 +8,6 @@ trait UsersDao {
 
   def saveOrUpdate(user: Users): Future[Unit]
 
+  def add(user: Users): Future[Unit]
+
 }

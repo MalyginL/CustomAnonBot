@@ -7,7 +7,6 @@ class AppStatisticImplTest extends FlatSpec with Matchers {
   val appStatisticImpl = new AppStatisticImpl
   behavior of "AppStatisticImpl"
 
-
   it should "return valid model" in {
     val stat = appStatisticImpl.getAppStatistic
     stat.threadCount > 0 shouldBe true

@@ -8,8 +8,9 @@ import club.malygin.{Application, Config}
 import club.malygin.telegram.botMethods.{AnswerCallbackQuery, EditMessageReplyMarkup, SendMessage}
 import club.malygin.web.model.{CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup}
 import com.typesafe.scalalogging.LazyLogging
+import club.malygin.Application.ec
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.None
 import scala.util.{Failure, Success}
 
 trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport with LazyLogging {
@@ -62,5 +63,6 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
               .flatMap(Application.http.singleRequest(_))
           case Failure(_) => logger.error(s"error")
         }
+      case None => logger.warn("callback issue")
     }
 }
