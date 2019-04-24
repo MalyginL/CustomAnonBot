@@ -44,6 +44,9 @@ class QuizResultsServiceTest extends FlatSpec with Matchers with MockFactory wit
       }
     }
   }
-
+  override def afterAll() {
+    Thread.sleep(10000)
+    testdb.close()
+  }
 
 }

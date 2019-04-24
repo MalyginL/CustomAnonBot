@@ -6,7 +6,7 @@ import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, RequestEntity, Uri}
 import club.malygin.Config
-import club.malygin.telegram.botMethods.{AnswerCallbackQuery, EditMessageReplyMarkup, SendMessage}
+import club.malygin.telegram.botMethods._
 import club.malygin.web.model.{CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup}
 import com.typesafe.scalalogging.LazyLogging
 import club.malygin.Application.system
@@ -24,8 +24,38 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
       .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendMessage"), entity = k))
       .flatMap(http.singleRequest(_))
 
+  def sendSticker(sticker: String, userId: Int)(implicit executor: ExecutionContext): Unit =
+    Marshal(SendSticker(userId, sticker))
+      .to[RequestEntity]
+      .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendSticker"), entity = k))
+      .flatMap(http.singleRequest(_))
+
+  def sendPhoto(photo: String, userId: Int)(implicit executor: ExecutionContext): Unit =
+    Marshal(SendPhoto(userId, photo))
+      .to[RequestEntity]
+      .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendPhoto"), entity = k))
+      .flatMap(http.singleRequest(_))
+
+  def sendAudio(audio: String, userId: Int)(implicit executor: ExecutionContext): Unit =
+    Marshal(SendAudio(userId, audio))
+      .to[RequestEntity]
+      .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendAudio"), entity = k))
+      .flatMap(http.singleRequest(_))
+
+  def sendVoice(voice: String, userId: Int)(implicit executor: ExecutionContext): Unit =
+    Marshal(SendVoice(userId, voice))
+      .to[RequestEntity]
+      .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendVoice"), entity = k))
+      .flatMap(http.singleRequest(_))
+
+  def sendAnimation(animation: String, userId: Int)(implicit executor: ExecutionContext): Unit =
+    Marshal(SendAnimation(userId, animation))
+      .to[RequestEntity]
+      .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendAnimation"), entity = k))
+      .flatMap(http.singleRequest(_))
+
   def answerCallbackQueryAndRemove(id: String, chatId: String, messageId: Int, userId: Int)(
-      implicit executor: ExecutionContext
+    implicit executor: ExecutionContext
   ): Unit = {
     val answ = Marshal(AnswerCallbackQuery(id, Some("Answer accepted")))
       .to[RequestEntity]
@@ -43,7 +73,7 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
   }
 
   def sendKeyboard(id: String, title: String, buttons: Array[InlineKeyboardButton])(
-      implicit executor: ExecutionContext
+    implicit executor: ExecutionContext
   ): Unit =
     Marshal(SendMessage(id.toInt, title, reply_markup = Option(InlineKeyboardMarkup(Array(buttons)))))
       .to[RequestEntity]

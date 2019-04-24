@@ -18,15 +18,16 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 class UserActor @Inject()(
-    cache: UserPairCache[Long, Long],
-    usersDao: UsersDao,
-    quizResultsDao: QuizResultsDao,
-    quizQuestionDao: QuizQuestionDao
-) extends Actor
-    with Commands
-    with LazyLogging {
+                           cache: UserPairCache[Long, Long],
+                           usersDao: UsersDao,
+                           quizResultsDao: QuizResultsDao,
+                           quizQuestionDao: QuizQuestionDao
+                         ) extends Actor
+  with Commands
+  with LazyLogging {
 
   import context._
+
 
   context.setReceiveTimeout(5.minutes)
 
@@ -36,13 +37,14 @@ class UserActor @Inject()(
   }
 
   private val actorName = self.path.name
+  private val userId = actorName.toInt
   context.parent ! ActorState("?", actorName)
 
   def init: PartialFunction[Any, Unit] = {
     case message: Message =>
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/start" =>
-          sendMessage(greeting, actorName.toInt)
+          sendMessage(greeting, userId)
           message.from match {
             case Some(from) =>
               usersDao.saveOrUpdate(
@@ -57,7 +59,7 @@ class UserActor @Inject()(
               become(registerStart)
             case None => logger.warn("entering without address")
           }
-        case _ => sendMessage("to start use /start command", actorName.toInt)
+        case _ => sendMessage("to start use /start command", userId)
       }
     case callback: CallbackQuery => invalidateCallback(callback)
     case ReceiveTimeout =>
@@ -69,12 +71,12 @@ class UserActor @Inject()(
     case message: Message =>
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/register" =>
-          sendMessage("after quiz use /search command to start chat", actorName.toInt)
+          sendMessage("after quiz use /search command to start chat", userId)
           quizQuestionDao.getActive.onComplete { e =>
             e.getOrElse(Seq.empty[QuizQuestions])
               .foreach(question => {
                 sendKeyboard(
-                  actorName,
+                  userId.toString,
                   question.text,
                   Array(
                     InlineKeyboardButton(
@@ -95,7 +97,7 @@ class UserActor @Inject()(
           }
           context.parent ! ActorState("awaitingRegister", actorName)
           become(awaitingRegister)
-        case _ => sendMessage("please register using /register command", actorName.toInt)
+        case _ => sendMessage("please register using /register command", userId)
       }
     case callback: CallbackQuery => invalidateCallback(callback)
     case ReceiveTimeout =>
@@ -125,7 +127,7 @@ class UserActor @Inject()(
                     callback.from.id
                   )
                 case Left(_) => logger.warn("decoding callback error")
-                case _       => invalidateCallback(callback)
+                case _ => invalidateCallback(callback)
               }
             case None => logger.warn("no result in callback")
           }
@@ -135,7 +137,7 @@ class UserActor @Inject()(
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/search" =>
           quizQuestionDao
-            .getActiveWithAnswer(actorName.toLong)
+            .getActiveWithAnswer(userId.toLong)
             .map(
               _.map(
                 q =>
@@ -145,16 +147,16 @@ class UserActor @Inject()(
                   )
               )
             )
-            .map(k => sendKeyboard(actorName, "choose topic", k.toArray[InlineKeyboardButton]))
+            .map(k => sendKeyboard(userId.toString, "choose topic", k.toArray[InlineKeyboardButton]))
           context.parent ! ActorState("awaitingTopic", actorName)
           become(awaitingTopic)
         case Some(text) if message.entities.isDefined && text == "/register" =>
-          sendMessage("after quiz use /search command to start chat", actorName.toInt)
+          sendMessage("after quiz use /search command to start chat", userId)
           quizQuestionDao.getActive.onComplete { e =>
             e.getOrElse(Seq.empty[QuizQuestions])
               .foreach(question => {
                 sendKeyboard(
-                  actorName,
+                  userId.toString,
                   question.text,
                   Array(
                     InlineKeyboardButton(
@@ -171,7 +173,7 @@ class UserActor @Inject()(
                 )
               })
           }
-        case _ => sendMessage("please complete registration and use /search command", actorName.toInt)
+        case _ => sendMessage("please complete registration and use /search command", userId)
       }
 
     case ReceiveTimeout =>
@@ -194,22 +196,14 @@ class UserActor @Inject()(
                     message.message_id.intValue,
                     callback.from.id
                   )
-                  usersDao.find(callback.from.id, UUID.fromString(entity.id)).onComplete {
+                  usersDao.findAndPairUsersTransactionally(callback.from.id, UUID.fromString(entity.id)).andThen {
                     case Success(res) =>
-                      usersDao
-                        .setPair(callback.from.id, res, UUID.fromString(entity.id))
-                        .andThen {
-                          case Success(_) =>
-                            cache.addToCache(callback.from.id, res)
-                            cache.addToCache(res, callback.from.id)
-                        }
-                        .andThen {
-                          case Success(_) =>
-                            sendMessage(s"Chat connected\n Have fun!", callback.from.id)
-                            sendMessage(s"Chat connected\n Have fun!", res.toInt)
-                            context.parent ! ActorState("chatting", actorName)
-                            context.parent ! ActorState("chatting", res.toString)
-                        }
+                      cache.addToCache(callback.from.id, res)
+                      cache.addToCache(res, callback.from.id)
+                      sendMessage(s"Chat connected\n Have fun!", callback.from.id)
+                      sendMessage(s"Chat connected\n Have fun!", res.toInt)
+                      context.parent ! ActorState("chatting", actorName)
+                      context.parent ! ActorState("chatting", res.toString)
                     case Failure(_) =>
                       usersDao
                         .updateStatusToActive(callback.from.id, UUID.fromString(entity.id))
@@ -219,10 +213,9 @@ class UserActor @Inject()(
                             context.parent ! ActorState("searching", actorName)
                             become(searching)
                         }
-
                   }
                 case Left(_) => logger.warn("decoding callback error")
-                case _       => invalidateCallback(callback)
+                case _ => invalidateCallback(callback)
               }
             case None => logger.warn("no result in callback")
           }
@@ -231,12 +224,12 @@ class UserActor @Inject()(
     case message: Message =>
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/register" =>
-          sendMessage("after quiz use /search command to start chat", actorName.toInt)
+          sendMessage("after quiz use /search command to start chat", userId)
           quizQuestionDao.getActive.onComplete { e =>
             e.getOrElse(Seq.empty[QuizQuestions])
               .foreach(question => {
                 sendKeyboard(
-                  actorName,
+                  userId.toString,
                   question.text,
                   Array(
                     InlineKeyboardButton(
@@ -255,7 +248,7 @@ class UserActor @Inject()(
         case _ =>
           sendMessage(
             "choose topic in list, sended before, you can change your answer with /register command",
-            actorName.toInt
+            userId
           )
       }
     case ReceiveTimeout =>
@@ -269,9 +262,9 @@ class UserActor @Inject()(
     case message: Message =>
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/leave" =>
-          sendMessage("searching stopped", actorName.toInt)
+          sendMessage("searching stopped", userId)
           become(awaitingRegister)
-        case _ => sendMessage("noone is hearing you, use /leave to stop searching", actorName.toInt)
+        case _ => sendMessage("noone is hearing you, use /leave to stop searching", userId)
       }
 
     case callback: CallbackQuery => invalidateCallback(callback)
@@ -285,34 +278,59 @@ class UserActor @Inject()(
     case message: Message =>
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/leave" =>
-          cache.loadFromCache(actorName.toLong).map {
+          cache.loadFromCache(userId.toLong).map {
             case -1L =>
-              sendMessage("error, returning", actorName.toInt)
+              sendMessage("error, returning", userId)
             case user =>
-              usersDao.clearPair(actorName.toLong, user).andThen {
+              usersDao.clearPair(userId.toLong, user).andThen {
                 case Success(_) =>
-                  cache.deletePair(user, actorName.toLong)
+                  cache.deletePair(user, userId.toLong)
                   sendMessage("chat disconnected", user.toInt)
                   context.parent ! ActorState("awaitingRegister", actorName)
                   context.parent ! ActorState("awaitingRegister", user.toString)
                   sendMessage(
                     "chat disconnected\n use /register to change answers\n or start new chat with /search",
-                    actorName.toInt
+                    userId
                   )
               }
           }
           become(awaitingRegister)
-
         case Some(text) =>
           cache
-            .loadFromCache(actorName.toLong)
+            .loadFromCache(userId.toLong)
             .map(e => {
-              CassandraDatabase.save(ChatLogsModel(UUID.randomUUID(), actorName.toLong, e, text, DateTime.now()))
+              CassandraDatabase.save(ChatLogsModel(UUID.randomUUID(), userId.toLong, e, text, DateTime.now()))
               sendMessage(text, e.intValue)
             })
-            .recover { case _ => sendMessage("You are not in active chat", actorName.toInt) }
-        case _ => logger.warn("unsupported type in chatting")
+            .recover { case _ => sendMessage("You are not in active chat", userId) }
+        case _ =>
+          message.sticker match {
+            case Some(sticker) => cache.loadFromCache(userId.toLong).map(e => sendSticker(sticker.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat", userId) }
+            case _ =>
+              message.animation match {
+                case Some(animation) => cache.loadFromCache(userId.toLong).map(e => sendAnimation(animation.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat", userId) }
+                case _ =>
+                  message.audio match {
+                    case Some(audio) => cache.loadFromCache(userId.toLong).map(e => sendAudio(audio.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat", userId) }
+                    case _ =>
+                      message.photo match {
+                        case Some(photo) => cache.loadFromCache(userId.toLong).map(e => {
+                          val res = photo.map(p => p.width)
+                          sendPhoto(photo(res.indexOf(res.max)).file_id, e.intValue)
+                        }).recover { case _ => sendMessage("You are not in active chat", userId) }
+                        case _ =>
+                          message.voice match {
+                            case Some(voice) => cache.loadFromCache(userId.toLong).map(e => sendVoice(voice.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat", userId) }
+                            case _ => sendMessage("unsupported type", userId)
+                          }
+                      }
+                  }
+              }
+
+          }
+
       }
+
     case callback: CallbackQuery => invalidateCallback(callback)
     case ReceiveTimeout =>
       context.stop(self)
@@ -327,12 +345,12 @@ class UserActor @Inject()(
     case state: ActorState =>
       logger.info(state.toString)
       state.value match {
-        case "init"             => become(init)
-        case "registerStart"    => become(registerStart)
+        case "init" => become(init)
+        case "registerStart" => become(registerStart)
         case "awaitingRegister" => become(awaitingRegister)
-        case "awaitingTopic"    => become(awaitingTopic)
-        case "searching"        => become(searching)
-        case "chatting"         => become(chatting)
+        case "awaitingTopic" => become(awaitingTopic)
+        case "searching" => become(searching)
+        case "chatting" => become(chatting)
       }
   }
 }

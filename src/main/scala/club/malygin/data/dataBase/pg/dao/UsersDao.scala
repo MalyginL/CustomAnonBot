@@ -12,6 +12,8 @@ trait UsersDao {
 
   def setPair(init: Long, companion: Long, quiz: UUID): Future[Unit]
 
+  def findAndPairUsersTransactionally(init: Long, quiz: UUID): Future[Long]
+
   def saveOrUpdate(user: Users): Future[Unit]
 
   def getCompanion(userId: Long): Future[Option[Long]]

@@ -2,6 +2,7 @@ package club.malygin.web
 
 import club.malygin.data.dataBase.cassandra.ChatLogsModel
 import club.malygin.data.dataBase.pg.model.CallbackMessage
+import club.malygin.telegram.botMethods.SendSticker
 import club.malygin.web.model.PositionType.PositionType
 import club.malygin.web.model._
 import io.circe.Decoder
@@ -24,6 +25,8 @@ trait JsonDecoders {
   implicit val DocumentReader: Decoder[Document] = deriveDecoder[Document]
   implicit val InlineQueryReader: Decoder[InlineQuery] =
     deriveDecoder[InlineQuery]
+  implicit val SendStickerReader: Decoder[SendSticker] =
+    deriveDecoder[SendSticker]
   implicit val LocationReader: Decoder[Location] = deriveDecoder[Location]
   implicit val MessageReader: Decoder[Message]   = deriveDecoder[Message]
   implicit val MessageEntityReader: Decoder[MessageEntity] =

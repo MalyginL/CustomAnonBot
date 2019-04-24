@@ -6,7 +6,7 @@ import club.malygin.data.appStat.AppStatModel
 import club.malygin.data.cache.CacheStatModel
 import club.malygin.data.dataBase.cassandra.ChatLogsModel
 import club.malygin.data.dataBase.pg.model.CallbackMessage
-import club.malygin.telegram.botMethods.{AnswerCallbackQuery, EditMessageReplyMarkup, SendMessage}
+import club.malygin.telegram.botMethods._
 import club.malygin.web.model.{InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup}
 import io.circe.{Encoder, Json, JsonNumber}
 import io.circe.generic.extras.Configuration
@@ -34,10 +34,20 @@ trait JsonEncoders {
     deriveEncoder[AnswerCallbackQuery].mapJsonObject(_.filter(!_._2.isNull))
   implicit val EditMessageReplyMarkupEncoder: Encoder[EditMessageReplyMarkup] =
     deriveEncoder[EditMessageReplyMarkup].mapJsonObject(_.filter(!_._2.isNull))
+  implicit val SendStickerEncoder: Encoder[SendSticker] =
+    deriveEncoder[SendSticker]
+  implicit val SendAudioEncoder: Encoder[SendAudio] =
+    deriveEncoder[SendAudio]
+  implicit val SendPhotoEncoder: Encoder[SendPhoto] =
+    deriveEncoder[SendPhoto]
+  implicit val SendVoiceEncoder: Encoder[SendVoice] =
+    deriveEncoder[SendVoice]
+  implicit val SendAnimationEncoder: Encoder[SendAnimation] =
+    deriveEncoder[SendAnimation]
+
 
   implicit val ChatLogEncoder: Encoder[ChatLogsModel] =
     deriveEncoder[ChatLogsModel]
-
   implicit val TimestampFormat: Encoder[DateTime] = (a: DateTime) =>
     Encoder.encodeString.apply(a.toDateTime.toDateTime.toString)
   implicit val bigIntEncoder: Encoder[BigInt] = Encoder.encodeJsonNumber
