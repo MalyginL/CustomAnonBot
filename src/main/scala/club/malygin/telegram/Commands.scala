@@ -68,7 +68,7 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
           .to[RequestEntity]
           .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "editMessageReplyMarkup"), entity = k))
           .flatMap(http.singleRequest(_))
-      case Failure(_) => logger.error(s"error in removing inlinequery for user $userId")
+      case Failure(ex) => logger.error(s"error in removing inlinequery for user $userId",ex)
     }
   }
 
@@ -98,7 +98,7 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
             ).to[RequestEntity]
               .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "editMessageReplyMarkup"), entity = k))
               .flatMap(http.singleRequest(_))
-          case Failure(_) => logger.error(s"error")
+          case Failure(ex) => logger.error(s"error in invalidateCallback",ex)
         }
       case None => logger.warn("callback issue")
     }

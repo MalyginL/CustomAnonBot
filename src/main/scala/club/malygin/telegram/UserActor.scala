@@ -59,7 +59,7 @@ class UserActor @Inject()(
               become(registerStart)
             case None => logger.warn("entering without address")
           }
-        case _ => sendMessage("to start use /start command", userId)
+        case _ => sendMessage("Use /start command.", userId)
       }
     case callback: CallbackQuery => invalidateCallback(callback)
     case ReceiveTimeout =>
@@ -71,7 +71,7 @@ class UserActor @Inject()(
     case message: Message =>
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/register" =>
-          sendMessage("after quiz use /search command to start chat", userId)
+          sendMessage("After passing poll use /search to start chatting.", userId)
           quizQuestionDao.getActive.onComplete { e =>
             e.getOrElse(Seq.empty[QuizQuestions])
               .foreach(question => {
@@ -95,9 +95,10 @@ class UserActor @Inject()(
                 )
               })
           }
+
           context.parent ! ActorState("awaitingRegister", actorName)
           become(awaitingRegister)
-        case _ => sendMessage("please register using /register command", userId)
+        case _ => sendMessage("Please start poll using /register command.", userId)
       }
     case callback: CallbackQuery => invalidateCallback(callback)
     case ReceiveTimeout =>
@@ -147,11 +148,11 @@ class UserActor @Inject()(
                   )
               )
             )
-            .map(k => sendKeyboard(userId.toString, "choose topic", k.toArray[InlineKeyboardButton]))
+            .map(k => sendKeyboard(userId.toString, "Choose topic", k.toArray[InlineKeyboardButton]))
           context.parent ! ActorState("awaitingTopic", actorName)
           become(awaitingTopic)
         case Some(text) if message.entities.isDefined && text == "/register" =>
-          sendMessage("after quiz use /search command to start chat", userId)
+          sendMessage("After passing poll use /search to start chatting.", userId)
           quizQuestionDao.getActive.onComplete { e =>
             e.getOrElse(Seq.empty[QuizQuestions])
               .foreach(question => {
@@ -173,7 +174,7 @@ class UserActor @Inject()(
                 )
               })
           }
-        case _ => sendMessage("please complete registration and use /search command", userId)
+        case _ => sendMessage("Use\n/search to start chatting.\n/register again to answer question in a different way.", userId)
       }
 
     case ReceiveTimeout =>
@@ -200,8 +201,8 @@ class UserActor @Inject()(
                     case Success(res) =>
                       cache.addToCache(callback.from.id, res)
                       cache.addToCache(res, callback.from.id)
-                      sendMessage(s"Chat connected\n Have fun!", callback.from.id)
-                      sendMessage(s"Chat connected\n Have fun!", res.toInt)
+                      sendMessage(s"Chat connected.\nHave fun!", callback.from.id)
+                      sendMessage(s"Chat connected.\nHave fun!", res.toInt)
                       context.parent ! ActorState("chatting", actorName)
                       context.parent ! ActorState("chatting", res.toString)
                     case Failure(_) =>
@@ -209,7 +210,7 @@ class UserActor @Inject()(
                         .updateStatusToActive(callback.from.id, UUID.fromString(entity.id))
                         .andThen {
                           case Success(_) =>
-                            sendMessage("Added to queue, wait please", callback.from.id)
+                            sendMessage("Waiting...\n/leave to stop searching.", callback.from.id)
                             context.parent ! ActorState("searching", actorName)
                             become(searching)
                         }
@@ -224,7 +225,7 @@ class UserActor @Inject()(
     case message: Message =>
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/register" =>
-          sendMessage("after quiz use /search command to start chat", userId)
+          sendMessage("After passing poll use /search to start chatting.", userId)
           quizQuestionDao.getActive.onComplete { e =>
             e.getOrElse(Seq.empty[QuizQuestions])
               .foreach(question => {
@@ -246,10 +247,7 @@ class UserActor @Inject()(
           }
           become(awaitingRegister)
         case _ =>
-          sendMessage(
-            "choose topic in list, sended before, you can change your answer with /register command",
-            userId
-          )
+          sendMessage("Choose topic, please!\n /register again to answer question in a different way.",userId          )
       }
     case ReceiveTimeout =>
       context.stop(self)
@@ -262,9 +260,9 @@ class UserActor @Inject()(
     case message: Message =>
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/leave" =>
-          sendMessage("searching stopped", userId)
+          sendMessage("Searching stopped!\n/search to start chatting\n/register again to answer question in a different way", userId)
           become(awaitingRegister)
-        case _ => sendMessage("noone is hearing you, use /leave to stop searching", userId)
+        case _ => sendMessage("Nobody hears you!\n/leave to stop searching", userId)
       }
 
     case callback: CallbackQuery => invalidateCallback(callback)
@@ -280,18 +278,16 @@ class UserActor @Inject()(
         case Some(text) if message.entities.isDefined && text == "/leave" =>
           cache.loadFromCache(userId.toLong).map {
             case -1L =>
-              sendMessage("error, returning", userId)
+              sendMessage("Error, returning", userId)
             case user =>
               usersDao.clearPair(userId.toLong, user).andThen {
                 case Success(_) =>
                   cache.deletePair(user, userId.toLong)
-                  sendMessage("chat disconnected", user.toInt)
+                  sendMessage("Chat disconnected!\n/search to start chatting\n/register again to answer question in a different way", user.toInt)
                   context.parent ! ActorState("awaitingRegister", actorName)
                   context.parent ! ActorState("awaitingRegister", user.toString)
                   sendMessage(
-                    "chat disconnected\n use /register to change answers\n or start new chat with /search",
-                    userId
-                  )
+                    "Chat disconnected!\n/search to start chatting\n/register again to answer question in a different way",userId)
               }
           }
           become(awaitingRegister)
@@ -302,25 +298,25 @@ class UserActor @Inject()(
               CassandraDatabase.save(ChatLogsModel(UUID.randomUUID(), userId.toLong, e, text, DateTime.now()))
               sendMessage(text, e.intValue)
             })
-            .recover { case _ => sendMessage("You are not in active chat", userId) }
+            .recover { case _ => sendMessage("You are not in active chat!", userId) }
         case _ =>
           message.sticker match {
-            case Some(sticker) => cache.loadFromCache(userId.toLong).map(e => sendSticker(sticker.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat", userId) }
+            case Some(sticker) => cache.loadFromCache(userId.toLong).map(e => sendSticker(sticker.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat!", userId) }
             case _ =>
               message.animation match {
-                case Some(animation) => cache.loadFromCache(userId.toLong).map(e => sendAnimation(animation.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat", userId) }
+                case Some(animation) => cache.loadFromCache(userId.toLong).map(e => sendAnimation(animation.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat!", userId) }
                 case _ =>
                   message.audio match {
-                    case Some(audio) => cache.loadFromCache(userId.toLong).map(e => sendAudio(audio.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat", userId) }
+                    case Some(audio) => cache.loadFromCache(userId.toLong).map(e => sendAudio(audio.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat!", userId) }
                     case _ =>
                       message.photo match {
                         case Some(photo) => cache.loadFromCache(userId.toLong).map(e => {
                           val res = photo.map(p => p.width)
                           sendPhoto(photo(res.indexOf(res.max)).file_id, e.intValue)
-                        }).recover { case _ => sendMessage("You are not in active chat", userId) }
+                        }).recover { case _ => sendMessage("You are not in active chat!", userId) }
                         case _ =>
                           message.voice match {
-                            case Some(voice) => cache.loadFromCache(userId.toLong).map(e => sendVoice(voice.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat", userId) }
+                            case Some(voice) => cache.loadFromCache(userId.toLong).map(e => sendVoice(voice.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat!", userId) }
                             case _ => sendMessage("unsupported type", userId)
                           }
                       }
@@ -339,7 +335,7 @@ class UserActor @Inject()(
   }
 
   val greeting =
-    "Hello friend!\nAnswer the question to pick up the interlocutor\nYou can change your choice with the command\n /register"
+    "Welcome!\nPlease, /register"
 
   override def receive: Receive = {
     case state: ActorState =>

@@ -1,6 +1,6 @@
 package club.malygin.telegram
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import club.malygin.{Application, Config}
 import club.malygin.data.appStat.{AppStatistic, AppStatisticImpl}
 import club.malygin.data.cache.{CacheLoader, DatabaseCacheLoader, UserPairCache, UserPairCacheImpl}
@@ -37,7 +37,7 @@ class ActorModule extends AbstractModule with ScalaModule {
       quizQuestionDao: QuizQuestionDao,
       actorSystem: ActorSystem,
       cache: UserPairCache[Long, Long]
-  ) =
+  ): ActorRef =
     actorSystem.actorOf(Props(new RouterActor(cache, usersDao, quizResultsDao, quizQuestionDao)), "TelegramRouterActor")
 
 }

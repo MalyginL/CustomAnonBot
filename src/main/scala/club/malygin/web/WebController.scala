@@ -18,7 +18,7 @@ class WebController @Inject()(webService: WebService)(
 
   import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 
-  implicit def TelegramRejectionHandler =
+  implicit def TelegramRejectionHandler: RejectionHandler =
     RejectionHandler
       .newBuilder()
       .handleAll[MalformedRequestContentRejection] { _ =>
@@ -32,10 +32,13 @@ class WebController @Inject()(webService: WebService)(
     } ~
       (path("statistic" / "app") & get) {
         complete(Marshal(webService.getAppInfo).to[RequestEntity])
+      } ~
+      (path("telegram" / "questions") & get){
+        complete(Marshal(webService.getCurrentTasks).to[RequestEntity])
       }
   }
 
-  private def apiRoutes: Route =
+  private def apiRoutes: Route =cors() {
     (path("api" / "cache" / "current") & get) {
       complete(webService.currentPairs)
     } ~
@@ -46,6 +49,7 @@ class WebController @Inject()(webService: WebService)(
         webService.truncateCassandra
         complete(StatusCodes.OK)
       }
+  }
 
   private def telegramRoutes: Route =
     handleRejections(TelegramRejectionHandler) {

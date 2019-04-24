@@ -5,7 +5,7 @@ import java.util.UUID
 import club.malygin.data.appStat.AppStatModel
 import club.malygin.data.cache.CacheStatModel
 import club.malygin.data.dataBase.cassandra.ChatLogsModel
-import club.malygin.data.dataBase.pg.model.CallbackMessage
+import club.malygin.data.dataBase.pg.model.{CallbackMessage, QuizQuestions}
 import club.malygin.telegram.botMethods._
 import club.malygin.web.model.{InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup}
 import io.circe.{Encoder, Json, JsonNumber}
@@ -44,7 +44,7 @@ trait JsonEncoders {
     deriveEncoder[SendVoice]
   implicit val SendAnimationEncoder: Encoder[SendAnimation] =
     deriveEncoder[SendAnimation]
-
+  implicit val quizQuestionsEncoder: Encoder[QuizQuestions]  = deriveEncoder[QuizQuestions]
 
   implicit val ChatLogEncoder: Encoder[ChatLogsModel] =
     deriveEncoder[ChatLogsModel]

@@ -1,7 +1,7 @@
 package club.malygin.web
 
 import club.malygin.data.dataBase.cassandra.ChatLogsModel
-import club.malygin.data.dataBase.pg.model.CallbackMessage
+import club.malygin.data.dataBase.pg.model.{CallbackMessage, QuizQuestions}
 import club.malygin.telegram.botMethods.SendSticker
 import club.malygin.web.model.PositionType.PositionType
 import club.malygin.web.model._
@@ -44,6 +44,8 @@ trait JsonDecoders {
   implicit val VoiceReader: Decoder[Voice]               = deriveDecoder[Voice]
   implicit val cbMessageReader: Decoder[CallbackMessage] = deriveDecoder[CallbackMessage]
   implicit val messageLogReader: Decoder[ChatLogsModel]  = deriveDecoder[ChatLogsModel]
+  implicit val quizQuestionsReader: Decoder[QuizQuestions]  = deriveDecoder[QuizQuestions]
+
 
   import org.joda.time.format.DateTimeFormat
 
