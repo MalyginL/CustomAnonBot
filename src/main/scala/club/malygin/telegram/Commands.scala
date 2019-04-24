@@ -100,6 +100,6 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
               .flatMap(http.singleRequest(_))
           case Failure(ex) => logger.error(s"error in invalidateCallback",ex)
         }
-      case None => logger.warn("callback issue")
+      case None => logger.warn("callback issue in invalidateCallback")
     }
 }

@@ -57,7 +57,7 @@ class UserActor @Inject()(
               )
               context.parent ! ActorState("registerStart", actorName)
               become(registerStart)
-            case None => logger.warn("entering without address")
+            case None => logger.warn("entering without address in init")
           }
         case _ => sendMessage("Use /start command.", userId)
       }
@@ -127,12 +127,12 @@ class UserActor @Inject()(
                     message.message_id.intValue,
                     callback.from.id
                   )
-                case Left(_) => logger.warn("decoding callback error")
+                case Left(_) => logger.warn("decoding callback error in awaitingRegister")
                 case _ => invalidateCallback(callback)
               }
-            case None => logger.warn("no result in callback")
+            case None => logger.warn("no result in callback in awaitingRegister")
           }
-        case None => logger.warn("callback without message, possible API change")
+        case None => logger.warn("callback without message in awaitingRegister, possible API change")
       }
     case message: Message =>
       message.text match {
@@ -215,12 +215,12 @@ class UserActor @Inject()(
                             become(searching)
                         }
                   }
-                case Left(_) => logger.warn("decoding callback error")
+                case Left(_) => logger.warn("decoding callback error in awaitingTopic")
                 case _ => invalidateCallback(callback)
               }
-            case None => logger.warn("no result in callback")
+            case None => logger.warn("no result in callback in awaitingTopic")
           }
-        case None => logger.warn("callback without message, possible API change")
+        case None => logger.warn("callback without message in awaitingTopic, possible API change")
       }
     case message: Message =>
       message.text match {
@@ -339,7 +339,6 @@ class UserActor @Inject()(
 
   override def receive: Receive = {
     case state: ActorState =>
-      logger.info(state.toString)
       state.value match {
         case "init" => become(init)
         case "registerStart" => become(registerStart)

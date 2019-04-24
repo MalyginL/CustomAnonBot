@@ -22,10 +22,8 @@ class WebService @Inject()(
 ) extends LazyLogging {
 
   def process(json: Update): Unit = {
-
     routerActor ! json
-
-    logger.warn(json.toString)
+    logger.info(json.toString)
   }
 
   def statistic: CacheStatModel = cache.loadStatistic

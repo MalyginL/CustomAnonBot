@@ -26,9 +26,9 @@ class RouterActor @Inject()(
             case Some(message) =>
               message.from match {
                 case Some(user) => getChild(user.id.toString) ! message
-                case None       => logger.warn("no user available")
+                case None       => logger.warn("no user available in UserActor receive")
               }
-            case None => logger.warn("no message available")
+            case None => logger.warn("no message available in UserActor receive")
           }
       }
 
@@ -37,7 +37,7 @@ class RouterActor @Inject()(
         case "?" =>
           getChild(state.actorName) ! idleChildren.getOrElse(state.actorName, ActorState("init", "parent"))
         case "chatting" =>
-          logger.warn(s"setting chatting to ${state.actorName}")
+          logger.info(s"setting chatting to ${state.actorName}")
           getChild(state.actorName) ! ActorState("chatting", "parent")
           idleChildren += (state.actorName -> state)
         case "awaitingRegister" =>
