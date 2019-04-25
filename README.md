@@ -10,6 +10,10 @@ Main features:
 - Bot does not use third-party telegram libraries, it implements only necessary functions.
 - Bot provides statistics by `get` requests
 
+## FRONTEND
+[https://github.com/MalyginL/malygin.club](https://github.com/MalyginL/malygin.club)
+
+
 ## REQUIREMENTS
 - Java 1.8+
 - Scala 2.11.12
