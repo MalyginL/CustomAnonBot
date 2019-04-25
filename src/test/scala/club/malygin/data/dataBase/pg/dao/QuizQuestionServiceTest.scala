@@ -10,7 +10,13 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext
-class QuizQuestionServiceTest extends FlatSpec with Matchers with MockFactory with ScalaFutures with BeforeAndAfterAll  with BeforeAndAfterEach {
+class QuizQuestionServiceTest
+    extends FlatSpec
+    with Matchers
+    with MockFactory
+    with ScalaFutures
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach {
   implicit val ec           = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(1))
   private val testdb        = TestConfig.testdb
   private val service       = new QuizQuestionService(testdb)
@@ -43,10 +49,8 @@ class QuizQuestionServiceTest extends FlatSpec with Matchers with MockFactory wi
 
   }
 
-
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     Thread.sleep(5000)
-  }
 
   "getActive" should "should return only active questions" in {
     whenReady(service.getActive) { res =>
@@ -70,6 +74,5 @@ class QuizQuestionServiceTest extends FlatSpec with Matchers with MockFactory wi
     Thread.sleep(10000)
     testdb.close()
   }
-
 
 }

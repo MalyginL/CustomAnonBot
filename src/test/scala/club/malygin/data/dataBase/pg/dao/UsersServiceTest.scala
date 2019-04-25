@@ -11,16 +11,22 @@ import org.scalatest.concurrent.ScalaFutures
 
 import scala.concurrent.ExecutionContext
 
-class UsersServiceTest extends FlatSpec with Matchers with MockFactory with ScalaFutures with BeforeAndAfterAll with BeforeAndAfterEach {
+class UsersServiceTest
+    extends FlatSpec
+    with Matchers
+    with MockFactory
+    with ScalaFutures
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach {
 
   implicit val ec = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(11))
 
   private val testdb = TestConfig.testdb
-  val userService = new UsersService(testdb)
+  val userService    = new UsersService(testdb)
   val resultsService = new QuizResultsService(testdb)
 
-  private val quizUUID = UUID.randomUUID()
-  private val firstUserID = System.currentTimeMillis()
+  private val quizUUID     = UUID.randomUUID()
+  private val firstUserID  = System.currentTimeMillis()
   private val secondUserID = System.currentTimeMillis() / 10
 
   override def beforeAll(): Unit = {
@@ -30,10 +36,8 @@ class UsersServiceTest extends FlatSpec with Matchers with MockFactory with Scal
     resultsService.save(QuizResults(UUID.randomUUID(), secondUserID, quizUUID, false))
   }
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     Thread.sleep(5000)
-  }
-
 
   "find" should "return id of companion" in {
     whenReady(userService.find(firstUserID, quizUUID)) { res =>

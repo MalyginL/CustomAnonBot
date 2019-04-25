@@ -1,6 +1,6 @@
 package club.malygin.telegram.botMethods
 
 case class SendPhoto(
-                      chat_id: Int,
-                      photo: String
-                    )
+    chat_id: Int,
+    photo: String
+)

@@ -35,17 +35,16 @@ trait JsonDecoders {
   implicit val PositionReader: Decoder[Position]   = deriveDecoder[Position]
   implicit val PositionTypeReader: Decoder[PositionType] =
     Decoder[String].map(a => PositionType.withName(a))
-  implicit val StickerReader: Decoder[Sticker]           = deriveDecoder[Sticker]
-  implicit val WebhookMessageReader: Decoder[Update]     = deriveDecoder[Update]
-  implicit val UserReader: Decoder[User]                 = deriveDecoder[User]
-  implicit val VenueReader: Decoder[Venue]               = deriveDecoder[Venue]
-  implicit val VideoReader: Decoder[Video]               = deriveDecoder[Video]
-  implicit val VideoNoteReader: Decoder[VideoNote]       = deriveDecoder[VideoNote]
-  implicit val VoiceReader: Decoder[Voice]               = deriveDecoder[Voice]
-  implicit val cbMessageReader: Decoder[CallbackMessage] = deriveDecoder[CallbackMessage]
-  implicit val messageLogReader: Decoder[ChatLogsModel]  = deriveDecoder[ChatLogsModel]
-  implicit val quizQuestionsReader: Decoder[QuizQuestions]  = deriveDecoder[QuizQuestions]
-
+  implicit val StickerReader: Decoder[Sticker]             = deriveDecoder[Sticker]
+  implicit val WebhookMessageReader: Decoder[Update]       = deriveDecoder[Update]
+  implicit val UserReader: Decoder[User]                   = deriveDecoder[User]
+  implicit val VenueReader: Decoder[Venue]                 = deriveDecoder[Venue]
+  implicit val VideoReader: Decoder[Video]                 = deriveDecoder[Video]
+  implicit val VideoNoteReader: Decoder[VideoNote]         = deriveDecoder[VideoNote]
+  implicit val VoiceReader: Decoder[Voice]                 = deriveDecoder[Voice]
+  implicit val cbMessageReader: Decoder[CallbackMessage]   = deriveDecoder[CallbackMessage]
+  implicit val messageLogReader: Decoder[ChatLogsModel]    = deriveDecoder[ChatLogsModel]
+  implicit val quizQuestionsReader: Decoder[QuizQuestions] = deriveDecoder[QuizQuestions]
 
   import org.joda.time.format.DateTimeFormat
 

@@ -44,7 +44,7 @@ trait JsonEncoders {
     deriveEncoder[SendVoice]
   implicit val SendAnimationEncoder: Encoder[SendAnimation] =
     deriveEncoder[SendAnimation]
-  implicit val quizQuestionsEncoder: Encoder[QuizQuestions]  = deriveEncoder[QuizQuestions]
+  implicit val quizQuestionsEncoder: Encoder[QuizQuestions] = deriveEncoder[QuizQuestions]
 
   implicit val ChatLogEncoder: Encoder[ChatLogsModel] =
     deriveEncoder[ChatLogsModel]

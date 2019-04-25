@@ -33,12 +33,12 @@ class WebController @Inject()(webService: WebService)(
       (path("statistic" / "app") & get) {
         complete(Marshal(webService.getAppInfo).to[RequestEntity])
       } ~
-      (path("telegram" / "questions") & get){
+      (path("telegram" / "questions") & get) {
         complete(Marshal(webService.getCurrentTasks).to[RequestEntity])
       }
   }
 
-  private def apiRoutes: Route =cors() {
+  private def apiRoutes: Route = cors() {
     (path("api" / "cache" / "current") & get) {
       complete(webService.currentPairs)
     } ~

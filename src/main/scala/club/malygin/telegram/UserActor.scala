@@ -18,16 +18,15 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 class UserActor @Inject()(
-                           cache: UserPairCache[Long, Long],
-                           usersDao: UsersDao,
-                           quizResultsDao: QuizResultsDao,
-                           quizQuestionDao: QuizQuestionDao
-                         ) extends Actor
-  with Commands
-  with LazyLogging {
+    cache: UserPairCache[Long, Long],
+    usersDao: UsersDao,
+    quizResultsDao: QuizResultsDao,
+    quizQuestionDao: QuizQuestionDao
+) extends Actor
+    with Commands
+    with LazyLogging {
 
   import context._
-
 
   context.setReceiveTimeout(5.minutes)
 
@@ -37,7 +36,7 @@ class UserActor @Inject()(
   }
 
   private val actorName = self.path.name
-  private val userId = actorName.toInt
+  private val userId    = actorName.toInt
   context.parent ! ActorState("?", actorName)
 
   def init: PartialFunction[Any, Unit] = {
@@ -128,7 +127,7 @@ class UserActor @Inject()(
                     callback.from.id
                   )
                 case Left(_) => logger.warn("decoding callback error in awaitingRegister")
-                case _ => invalidateCallback(callback)
+                case _       => invalidateCallback(callback)
               }
             case None => logger.warn("no result in callback in awaitingRegister")
           }
@@ -174,7 +173,8 @@ class UserActor @Inject()(
                 )
               })
           }
-        case _ => sendMessage("Use\n/search to start chatting.\n/register again to answer question in a different way.", userId)
+        case _ =>
+          sendMessage("Use\n/search to start chatting.\n/register again to answer question in a different way.", userId)
       }
 
     case ReceiveTimeout =>
@@ -216,7 +216,7 @@ class UserActor @Inject()(
                         }
                   }
                 case Left(_) => logger.warn("decoding callback error in awaitingTopic")
-                case _ => invalidateCallback(callback)
+                case _       => invalidateCallback(callback)
               }
             case None => logger.warn("no result in callback in awaitingTopic")
           }
@@ -247,7 +247,7 @@ class UserActor @Inject()(
           }
           become(awaitingRegister)
         case _ =>
-          sendMessage("Choose topic, please!\n /register again to answer question in a different way.",userId          )
+          sendMessage("Choose topic, please!\n /register again to answer question in a different way.", userId)
       }
     case ReceiveTimeout =>
       context.stop(self)
@@ -260,7 +260,10 @@ class UserActor @Inject()(
     case message: Message =>
       message.text match {
         case Some(text) if message.entities.isDefined && text == "/leave" =>
-          sendMessage("Searching stopped!\n/search to start chatting\n/register again to answer question in a different way", userId)
+          sendMessage(
+            "Searching stopped!\n/search to start chatting\n/register again to answer question in a different way",
+            userId
+          )
           become(awaitingRegister)
         case _ => sendMessage("Nobody hears you!\n/leave to stop searching", userId)
       }
@@ -283,11 +286,16 @@ class UserActor @Inject()(
               usersDao.clearPair(userId.toLong, user).andThen {
                 case Success(_) =>
                   cache.deletePair(user, userId.toLong)
-                  sendMessage("Chat disconnected!\n/search to start chatting\n/register again to answer question in a different way", user.toInt)
+                  sendMessage(
+                    "Chat disconnected!\n/search to start chatting\n/register again to answer question in a different way",
+                    user.toInt
+                  )
                   context.parent ! ActorState("awaitingRegister", actorName)
                   context.parent ! ActorState("awaitingRegister", user.toString)
                   sendMessage(
-                    "Chat disconnected!\n/search to start chatting\n/register again to answer question in a different way",userId)
+                    "Chat disconnected!\n/search to start chatting\n/register again to answer question in a different way",
+                    userId
+                  )
               }
           }
           become(awaitingRegister)
@@ -301,22 +309,39 @@ class UserActor @Inject()(
             .recover { case _ => sendMessage("You are not in active chat!", userId) }
         case _ =>
           message.sticker match {
-            case Some(sticker) => cache.loadFromCache(userId.toLong).map(e => sendSticker(sticker.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat!", userId) }
+            case Some(sticker) =>
+              cache.loadFromCache(userId.toLong).map(e => sendSticker(sticker.file_id, e.intValue)).recover {
+                case _ => sendMessage("You are not in active chat!", userId)
+              }
             case _ =>
               message.animation match {
-                case Some(animation) => cache.loadFromCache(userId.toLong).map(e => sendAnimation(animation.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat!", userId) }
+                case Some(animation) =>
+                  cache.loadFromCache(userId.toLong).map(e => sendAnimation(animation.file_id, e.intValue)).recover {
+                    case _ => sendMessage("You are not in active chat!", userId)
+                  }
                 case _ =>
                   message.audio match {
-                    case Some(audio) => cache.loadFromCache(userId.toLong).map(e => sendAudio(audio.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat!", userId) }
+                    case Some(audio) =>
+                      cache.loadFromCache(userId.toLong).map(e => sendAudio(audio.file_id, e.intValue)).recover {
+                        case _ => sendMessage("You are not in active chat!", userId)
+                      }
                     case _ =>
                       message.photo match {
-                        case Some(photo) => cache.loadFromCache(userId.toLong).map(e => {
-                          val res = photo.map(p => p.width)
-                          sendPhoto(photo(res.indexOf(res.max)).file_id, e.intValue)
-                        }).recover { case _ => sendMessage("You are not in active chat!", userId) }
+                        case Some(photo) =>
+                          cache
+                            .loadFromCache(userId.toLong)
+                            .map(e => {
+                              val res = photo.map(p => p.width)
+                              sendPhoto(photo(res.indexOf(res.max)).file_id, e.intValue)
+                            })
+                            .recover { case _ => sendMessage("You are not in active chat!", userId) }
                         case _ =>
                           message.voice match {
-                            case Some(voice) => cache.loadFromCache(userId.toLong).map(e => sendVoice(voice.file_id, e.intValue)).recover { case _ => sendMessage("You are not in active chat!", userId) }
+                            case Some(voice) =>
+                              cache
+                                .loadFromCache(userId.toLong)
+                                .map(e => sendVoice(voice.file_id, e.intValue))
+                                .recover { case _ => sendMessage("You are not in active chat!", userId) }
                             case _ => sendMessage("unsupported type", userId)
                           }
                       }
@@ -340,12 +365,12 @@ class UserActor @Inject()(
   override def receive: Receive = {
     case state: ActorState =>
       state.value match {
-        case "init" => become(init)
-        case "registerStart" => become(registerStart)
+        case "init"             => become(init)
+        case "registerStart"    => become(registerStart)
         case "awaitingRegister" => become(awaitingRegister)
-        case "awaitingTopic" => become(awaitingTopic)
-        case "searching" => become(searching)
-        case "chatting" => become(chatting)
+        case "awaitingTopic"    => become(awaitingTopic)
+        case "searching"        => become(searching)
+        case "chatting"         => become(chatting)
       }
   }
 }

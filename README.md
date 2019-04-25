@@ -83,6 +83,9 @@ Main features:
 9) Send `GET` request on `api.telegram.org/bot/bot{YOUR_TOKEN}/setWebhook?url=https://{YOUR_DOMAIN}/telegram`
 10) It works!
 
+## HOW IT WORKS
+![](https://i.imgur.com/My7exCQ.png)
+
 ## BOT COMMANDS
 - `/start` - shows greeting message and starts poll
 - `/register` - starts poll. It can be helpful if user wants to change answer

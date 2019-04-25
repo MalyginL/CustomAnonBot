@@ -55,7 +55,7 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
       .flatMap(http.singleRequest(_))
 
   def answerCallbackQueryAndRemove(id: String, chatId: String, messageId: Int, userId: Int)(
-    implicit executor: ExecutionContext
+      implicit executor: ExecutionContext
   ): Unit = {
     val answ = Marshal(AnswerCallbackQuery(id, Some("Answer accepted")))
       .to[RequestEntity]
@@ -68,12 +68,12 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
           .to[RequestEntity]
           .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "editMessageReplyMarkup"), entity = k))
           .flatMap(http.singleRequest(_))
-      case Failure(ex) => logger.error(s"error in removing inlinequery for user $userId",ex)
+      case Failure(ex) => logger.error(s"error in removing inlinequery for user $userId", ex)
     }
   }
 
   def sendKeyboard(id: String, title: String, buttons: Array[InlineKeyboardButton])(
-    implicit executor: ExecutionContext
+      implicit executor: ExecutionContext
   ): Unit =
     Marshal(SendMessage(id.toInt, title, reply_markup = Option(InlineKeyboardMarkup(Array(buttons)))))
       .to[RequestEntity]
@@ -98,7 +98,7 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
             ).to[RequestEntity]
               .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "editMessageReplyMarkup"), entity = k))
               .flatMap(http.singleRequest(_))
-          case Failure(ex) => logger.error(s"error in invalidateCallback",ex)
+          case Failure(ex) => logger.error(s"error in invalidateCallback", ex)
         }
       case None => logger.warn("callback issue in invalidateCallback")
     }
