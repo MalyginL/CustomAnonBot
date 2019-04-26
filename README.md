@@ -11,8 +11,8 @@ Main features:
 - Bot provides statistics by `get` requests
 
 ## FRONTEND
-[https://github.com/MalyginL/malygin.club](https://github.com/MalyginL/malygin.club)
-[https:malygin.club](https:malygin.club)
+[https://github.com/MalyginL/malygin.club](https://github.com/MalyginL/malygin.club) <br><br>
+[https://malygin.club](https:malygin.club)
 
 ## REQUIREMENTS
 - Java 1.8+
