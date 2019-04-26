@@ -12,7 +12,7 @@ Main features:
 
 ## FRONTEND
 [https://github.com/MalyginL/malygin.club](https://github.com/MalyginL/malygin.club)
-
+[https:malygin.club](https:malygin.club)
 
 ## REQUIREMENTS
 - Java 1.8+
