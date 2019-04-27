@@ -18,42 +18,50 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
 
   val http = Http()
 
+/**sends message */
   def sendMessage(text: String, userId: Int)(implicit executor: ExecutionContext): Unit =
     Marshal(SendMessage(userId, text))
       .to[RequestEntity]
       .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendMessage"), entity = k))
       .flatMap(http.singleRequest(_))
 
+  /**sends sticker */
   def sendSticker(sticker: String, userId: Int)(implicit executor: ExecutionContext): Unit =
     Marshal(SendSticker(userId, sticker))
       .to[RequestEntity]
       .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendSticker"), entity = k))
       .flatMap(http.singleRequest(_))
 
+  /**sends photo */
   def sendPhoto(photo: String, userId: Int)(implicit executor: ExecutionContext): Unit =
     Marshal(SendPhoto(userId, photo))
       .to[RequestEntity]
       .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendPhoto"), entity = k))
       .flatMap(http.singleRequest(_))
 
+  /**sends audio */
   def sendAudio(audio: String, userId: Int)(implicit executor: ExecutionContext): Unit =
     Marshal(SendAudio(userId, audio))
       .to[RequestEntity]
       .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendAudio"), entity = k))
       .flatMap(http.singleRequest(_))
 
+  /**sends audio */
   def sendVoice(voice: String, userId: Int)(implicit executor: ExecutionContext): Unit =
     Marshal(SendVoice(userId, voice))
       .to[RequestEntity]
       .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendVoice"), entity = k))
       .flatMap(http.singleRequest(_))
 
+  /**sends animation */
   def sendAnimation(animation: String, userId: Int)(implicit executor: ExecutionContext): Unit =
     Marshal(SendAnimation(userId, animation))
       .to[RequestEntity]
       .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendAnimation"), entity = k))
       .flatMap(http.singleRequest(_))
 
+
+  /**provides callback for inlineQuery result. Its required for telegram api. After callback method removes answer buttons*/
   def answerCallbackQueryAndRemove(id: String, chatId: String, messageId: Int, userId: Int)(
       implicit executor: ExecutionContext
   ): Unit = {
@@ -72,6 +80,7 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
     }
   }
 
+  /**send answer buttons for inlineQuery*/
   def sendKeyboard(id: String, title: String, buttons: Array[InlineKeyboardButton])(
       implicit executor: ExecutionContext
   ): Unit =
@@ -80,6 +89,7 @@ trait Commands extends JsonEncoders with JsonDecoders with FailFastCirceSupport 
       .map(k => HttpRequest(HttpMethods.POST, Uri(Config.apiBaseUrl + "sendMessage"), entity = k))
       .flatMap(http.singleRequest(_))
 
+  /**Remove answer buttons and ignore result*/
   def invalidateCallback(callback: CallbackQuery)(implicit executor: ExecutionContext): Unit =
     callback.message match {
       case Some(message) =>

@@ -24,6 +24,10 @@ trait UserPairCache[A, B] {
     */
   def addToCache(key: A, value: B): Unit
 
+  /***
+    * deletes pair from cache (2 rows)
+    */
+
   def deletePair(first: A, second: A): Unit
 
   /**

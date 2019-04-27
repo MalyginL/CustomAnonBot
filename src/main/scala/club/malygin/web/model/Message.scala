@@ -40,14 +40,7 @@ case class Message(
     migrate_to_chat_id: Option[Long] = None,
     migrate_from_chat_id: Option[Long] = None,
     pinned_message: Option[Message] = None
-    /**
-  * Not suppported
-  *
-  * connected_website: Option[String] = None,
-  * game: Option[Game] = None,
-  * invoice: Option[Invoice] = None,
-  * successful_payment: Option[Payment] = None,
-  * passport_data: Option[String] = None */
+
 ) {
 
   def source: Long = chat.id

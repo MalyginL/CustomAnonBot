@@ -10,7 +10,4 @@ case class Update(
     chosen_inline_result: Option[ChosenInlineResult] = None,
     callback_query: Option[CallbackQuery] = None
 
-    /** Not Supported
-  * shipping_query      : Option[ShippingQuery] = None,
-  * pre_checkout_query   : Option[PreCheckoutQuery] = None*/
 )
